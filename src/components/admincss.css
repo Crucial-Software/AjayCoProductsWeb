@@ -1,0 +1,42 @@
+.main {
+    display: flex;
+    height: 100%;
+}
+
+.body {
+    height: 100%;
+    width: 100%;
+    margin: 20px;
+}
+
+.page-content {
+    width: 100%;
+}
+
+.page-content h5 {
+    padding: 20px;
+}
+
+.table-content {
+    padding: 20px;
+}
+
+.card.cardclass:hover {
+    background-color: #f2f2f2;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.accordion-button:not(.collapsed) {
+    color: #ffffff;
+    background-color: #2d8dd6;
+    box-shadow: inset 0 -1px 0 rgb(0 0 0 / 13%);
+}
+
+.accordion-button {
+    color: #000000;
+    background-color: #b3deef;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
