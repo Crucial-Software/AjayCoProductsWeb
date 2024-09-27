@@ -68,7 +68,7 @@ const Sidebar = () => {
                         {locationMenu ?
                             <CDBListGroup style={{ paddingLeft: 20 }}>
                                 <div style={{ height: 40 }}>
-                                    <Link to="/managestates">
+                                    <Link to="/check">
                                         <CDBSidebarMenuItem icon="circle-small" iconSize="sm" textFontSize="14px" >
                                             State
                                         </CDBSidebarMenuItem>

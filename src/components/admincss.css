@@ -40,3 +40,20 @@
     font-weight: 500;
     cursor: pointer;
 }
+
+
+.p-datatable{
+    padding: 10px;
+    font-size: small;
+}
+.p-datatable .p-component .p-datatable-responsive-scroll .p-datatable-gridlines .p-datatable-striped{
+    background-color: #000000;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+    background-color: #dedede;
+}
+
+.p-paginator{
+    font-size: small;
+}
