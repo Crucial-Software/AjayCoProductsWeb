@@ -65,7 +65,7 @@ export default function NavBar() {
                                         style={{ marginLeft: 10, marginRight: 10 }}
                                     >
                                         {categoryList.map((data, key) =>
-                                            <NavDropdown.Item as={Link} to="/shop" key={data._id}>{data.categoryName}</NavDropdown.Item>
+                                            <NavDropdown.Item as={Link} to="/shop" state={{ categoryId: data._id }} key={data._id}>{data.categoryName}</NavDropdown.Item>
                                         )}
 
                                     </NavDropdown>

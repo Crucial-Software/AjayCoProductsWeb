@@ -590,3 +590,15 @@ export const deleteFeatureOption = async (toInput) => {
       console.error("api - deleteFeatureOption error: " + error);
   }
 }
+
+//PRODUCTS
+export const getAllProducts = async () => {
+    try {
+        const response = await fetch(`${API_BASE}/listproducts`, {
+            headers: { 'Content-Type': 'application/json' },
+        });
+        return response;
+    } catch (error) {
+        console.error("api - getAllProducts error: " + error);
+    }
+  }

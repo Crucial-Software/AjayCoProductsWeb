@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, { useEffect } from 'react'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
 import { Container } from 'react-bootstrap'
@@ -8,8 +8,8 @@ import { useLocation } from 'react-router-dom'
 
 export default function Shop() {
 
-    const location = useLocation()
-  const { categoryId } = location.state
+    let location = useLocation();
+    const { categoryId } = location?.state;
 
     useEffect(() => {
         window.scrollTo({
@@ -18,6 +18,8 @@ export default function Shop() {
             behavior: "smooth"
         });
 
+        //console.log("catID: " + categoryId);
+
     }, [categoryId])
 
     return (
@@ -25,7 +27,7 @@ export default function Shop() {
 
             <TopHeader />
 
-            <NavBar  />
+            <NavBar />
 
             <Container>
                 <AllProducts show={"idWise"} id={categoryId} />
