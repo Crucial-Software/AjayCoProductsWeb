@@ -1,12 +1,23 @@
-import { getProducts } from '../data';
+import { getAllProducts } from '../../components/api';
 import * as Constants from './types';
 
-export const fetchProducts = (item) => dispatch => {
+export const fetchProducts = () => dispatch => {
 
-    const productItems = getProducts();
+        const response = getAllProducts()
+            .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson && await response.json();
+                if (response.ok) {
+                    dispatch({
+                        type: Constants.FETCH_ALL_PRODUCTS,
+                        payload: data.data,
+                        loading: false
+                    });
+                }
+            })
+            .catch(error => {
+                console.log("Products Error: " + error)
+            });;
+        return response;
 
-    dispatch({
-        type: Constants.FETCH_ALL_PRODUCTS,
-        payload: productItems,
-    });
 }

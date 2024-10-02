@@ -602,3 +602,30 @@ export const getAllProducts = async () => {
         console.error("api - getAllProducts error: " + error);
     }
   }
+
+  export const getProductById = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/findproduct`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - getProductById error: " + error);
+    }
+  }
+
+  //CART
+  export const addToCart = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/createcart`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - addToCart error: " + error);
+    }
+  }

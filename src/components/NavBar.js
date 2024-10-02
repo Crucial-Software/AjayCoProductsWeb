@@ -92,7 +92,7 @@ export default function NavBar() {
                                     }
                                 </Nav>
                             </Navbar.Collapse>
-                            <Form className="d-flex">
+                            <Form className="d-flex align-items-center">
                                 <Form.Control
                                     type="search"
                                     placeholder="Search"
@@ -103,7 +103,7 @@ export default function NavBar() {
                                     variant="outline-secondary"
                                     size="sm"
                                     type="submit"
-                                    style={{ backgroundColor: Colors.primaryViolet, borderWidth: 1, borderColor: Colors.primaryViolet, color: Colors.white, fontWeight: 'bold' }}>
+                                    style={{ backgroundColor: Colors.primaryViolet, borderWidth: 1, borderColor: Colors.primaryViolet, color: Colors.white, fontWeight: 'bold', marginTop: 3 }}>
                                     <i className="icon-search"></i>
                                 </Button>
                             </Form>

@@ -265,9 +265,12 @@ export default function Checkout() {
                                     <h4>Cart Total</h4>
                                     <ul style={{marginTop: 10}}>
                                         {/* <li><span>Order Total</span> <span style={{ textAlign: "right" }}>₹ {orderTotal}</span></li> */}
-                                        <li><span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Order Total</span> <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>₹ {orderTotal}</span></li>
+                                        <li><span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Order Total</span> <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>₹ {orderTotal.toFixed(2)}</span></li>
                                         <li><span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Shipping</span> <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>₹ 0.00</span></li>
                                         <li><span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Other</span> <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>₹ 0.00</span></li>
+                                        <li><span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>SGST(9%)</span> <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>₹ {(orderTotal * 9/100).toFixed(2)}</span></li>
+                                        <li><span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>CGST(9%)</span> <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>₹ {(orderTotal * 9/100).toFixed(2)}</span></li>
+                                        <li><span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>IGST(18%)</span> <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>₹ {(orderTotal * 18/100).toFixed(2)}</span></li>
                                         {/* <li><span><strong>Amount to be Paid</strong></span> <span style={{ textAlign: "right" }}><strong>₹ {orderTotal}</strong></span></li> */}
                                         <li><span><strong>Amount to be Paid</strong></span> <span style={{ textAlign: "right" }}><strong>₹ {orderTotal}</strong></span></li>
                                     </ul>

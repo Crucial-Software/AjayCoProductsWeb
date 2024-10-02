@@ -7,6 +7,7 @@ import { Colors } from '../common/ConstantStyles'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux';
 import { removeItemFromCart, incrementItemQuantity, decrementItemQuantity } from '../redux/actions/cartAction'
+import { API_BASE } from "../components/urlLink";
 
 export default function Cart() {
 
@@ -126,39 +127,36 @@ export default function Cart() {
                     </Row>
                 }
 
-                <Row style={{ backgroundColor: Colors.grey, padding: 10, borderRadius: 50, fontSize: 14, fontWeight: "bold" }} className="align-items-center">
+                <Row style={{ backgroundColor: Colors.grey, padding: 5, borderRadius: 50, fontSize: 14, fontWeight: "bold", textAlign: "center" }} className="align-items-center">
                     <Col sm={4}>Product</Col>
-                    <Col sm={1} style={{ textAlign: "center" }}>Size</Col>
-                    <Col sm={1} style={{ textAlign: "center" }}>Price</Col>
-                    <Col sm={2} style={{ textAlign: "center" }}>Quantity</Col>
-                    <Col sm={1} style={{ textAlign: "center" }}>Sub-Total</Col>
-                    <Col sm={1} style={{ textAlign: "center" }}>GST(9%)</Col>
-                    <Col sm={1} style={{ textAlign: "center" }}>Total</Col>
-                    <Col sm={1} style={{ textAlign: "center" }}>Remove</Col>
+                    <Col sm={2}>Size</Col>
+                    <Col sm={1}>Price</Col>
+                    <Col sm={2}>Quantity</Col>
+                    <Col sm={2}>Sub-Total</Col>
+                    <Col sm={1}>Remove</Col>
                 </Row>
-                <Row style={{ backgroundColor: Colors.white, padding: 5, fontSize: 14, textAlign: "center", color: Colors.darkGrey }} >
+                <Row>
                     {cart.length !== 0 ?
                         cart.map((item, index) => (
-                            <Row key={index + 1} className="product-cart d-flex align-items-center">
+                            <Row key={index + 1} className="product-cart d-flex align-items-center" style={{ backgroundColor: Colors.white, padding: 5, fontSize: 14, textAlign: "center", color: Colors.darkGrey }}>
                                 <Col sm={4}>
                                     <div className="product-img">
-                                        <img src={item.uri[0].image} alt="product_image" height={75} />
+                                        <img src={`${API_BASE}/images/category/category_1726663680324.png`} alt="product_image" height={75} />
                                     </div>
                                     <div className="display-tc">
-                                        <p>{item.title}</p>
+                                        <p>{item.productName}</p>
+                                        <span style={{ fontSize: 12 }}>{item.SKU}</span>
                                     </div>
                                 </Col>
-                                <Col sm={1}>{item.size}</Col>
+                                <Col sm={2} style={{ wordBreak: "break-all" }}>{item.selectedVariant}</Col>
                                 <Col sm={1}>₹ {item.price.toFixed(2)}</Col>
                                 <Col sm={2}>
                                     <Image className="closeImage" src="../images/minus.png" style={{ width: 25, height: 25, alignSelf: "center", margin: 5, padding: 8, backgroundColor: Colors.grey }} onClick={() => { decrementQuantity(item) }} />
                                     <span className="price">{item.quantity}</span>
                                     <Image className="closeImage" src="../images/plus.png" style={{ width: 25, height: 25, alignSelf: "center", margin: 5, padding: 8, backgroundColor: Colors.grey }} onClick={() => { incrementQuantity(item) }} />
                                 </Col>
-                                <Col sm={1}>₹ {item.totalPrice.toFixed(2)}</Col>
-                                <Col sm={1}>₹ {(item.totalPrice * 9 / 100).toFixed(2)}</Col>
-                                <Col sm={1}>₹ {(item.totalPrice * 9 / 100 + item.totalPrice).toFixed(2)}</Col>
-                                <Col sm={1}><CloseButton onClick={() => { removefromCart(item) }} variant="light" /></Col>
+                                <Col sm={2}>₹ {(item.price * item.quantity).toFixed(2)}</Col>
+                                <Col sm={1} ><CloseButton onClick={() => { removefromCart(item) }} variant="light" /></Col>
                             </Row>
                         ))
                         :
@@ -173,7 +171,7 @@ export default function Cart() {
 
                 <Row className="justify-content-center">
                     <Col lg={8} style={{ marginBottom: 20 }}>
-                        <Row >
+                        <Row>
                             <Col sm={4}>
                                 <Form className="d-flex">
                                     <Form.Control
@@ -194,22 +192,11 @@ export default function Cart() {
 
                         </Row>
 
-                        {/* <Row>
-                            <div className="col-sm-5">
-                                <input type="text" name="quantity" className="form-control input-number" placeholder="Your Coupon Number..." />
-                            </div>
-                            <div className="col-sm-5">
-                                <Button variant="outline-secondary" size="sm" style={{ backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.primaryViolet, color: Colors.primaryViolet }}> Apply Coupon </Button>
-                            </div>
-                        </Row> */}
                     </Col>
                     <Col lg={4}>
                         <div className="cart-detail">
                             <ul>
-                                {/* <li><span>Sub Total</span> <span style={{ textAlign: "right" }}>₹ {cart.reduce((acc, item) => acc += item.price * item.quantity, 0).toFixed(2)}</span></li>
-                                <li><span>GST (18%)</span> <span style={{ textAlign: "right" }}>₹ 248.40</span></li> */}
-                                {/* <li><span><strong>Order Total</strong></span> <span style={{ textAlign: "right" }}><strong>₹ {cart.reduce((acc, item) => acc += item.price * item.quantity, 0).toFixed(2)}</strong></span></li> */}
-                                <li><span><strong>Order Total</strong></span> <span style={{ textAlign: "right" }}><strong>₹ {cart.reduce((acc, item) => acc += (item.totalPrice * 9 / 100 + item.totalPrice), 0).toFixed(2)}</strong></span></li>
+                                <li><span><strong>Order Total</strong></span> <span style={{ textAlign: "right" }}><strong>₹ {cart.reduce((acc, item) => acc += (item.price * item.quantity), 0).toFixed(2)}</strong></span></li>
                             </ul>
                         </div>
                     </Col>
@@ -224,7 +211,7 @@ export default function Cart() {
                                 loginid ?
                                     <>
                                         {role === "customer" ?
-                                            navigate("/checkout", { state: { orderTotal: cart.reduce((acc, item) => acc += (item.totalPrice * 9 / 100 + item.totalPrice), 0).toFixed(2) } })
+                                            navigate("/checkout", { state: { orderTotal: cart.reduce((acc, item) => acc += (item.price * item.quantity), 0).toFixed(2) } })
                                             :
                                             navigate("/placeorder")
                                         }
