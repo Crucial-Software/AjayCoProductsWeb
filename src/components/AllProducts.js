@@ -38,7 +38,7 @@ export default function AllProducts({ show, id }) {
                     <ProgressSpinner style={{ width: '25px', height: '25px' }} />
                     :
                     <>
-                        {products? products.map((item, index) => (
+                        {products ? products.map((item, index) => (
                             <Card
                                 key={item._id}
                                 style={{ width: '16rem', padding: 0, }}
@@ -46,7 +46,7 @@ export default function AllProducts({ show, id }) {
                                 onClick={() => { navigate('/productdetails', { state: { productId: item._id, } }); }}
                             >
                                 {/* <Card.Img variant="top" src={item.uri[0].image} style={{ alignSelf: "center", objectFit: "cover", height: 250,  }} /> */}
-                                <Card.Img variant="top" src={`${API_BASE}/images/category/category_1726663680324.png`} style={{ alignSelf: "center", objectFit: "cover", height: 250 }} />
+                                <Card.Img variant="top" src={`${API_BASE}/images/category/category_1727932029092.jpg`} style={{ alignSelf: "center", objectFit: "cover", height: 250 }} />
                                 <Card.Body>
                                     <Card.Text style={{ color: Colors.darkGrey, fontSize: 14 }}>{item.productName}</Card.Text>
                                 </Card.Body>
@@ -62,6 +62,13 @@ export default function AllProducts({ show, id }) {
                             <Row>
                                 <p style={{ padding: 20, textAlign: "center", marginBottom: 50, color: Colors.darkGrey, }}>Error in loading products</p>
                             </Row>
+                        }
+
+                        {products.length === 0 ?
+                            <Row>
+                                <p style={{ padding: 20, textAlign: "center", marginBottom: 50, color: Colors.darkGrey, }}>No products found</p>
+                            </Row>
+                            : null
                         }
                     </>
                 }

@@ -22,6 +22,7 @@ export default function ProductDetails() {
     let { state } = useLocation();
     const productId = state.productId;
 
+
     const [loading, setLoading] = useState(false);
     const [productDetails, setProductDetails] = useState([]);
     const [selectedVariant, setSelectedVariant] = useState("- Select Size -");
@@ -126,23 +127,23 @@ export default function ProductDetails() {
             //item = { ...product, quantity: minimumQuantity, size: size, totalPrice: tAmount };
             let item = {
                 productName: productDetails.productName,
-                SKU: selectedVariantDetails.SKU, 
+                SKU: selectedVariantDetails.SKU,
                 selectedVariant: selectedVariant,
-                price: selectedVariantDetails.offerPrice, 
-                quantity: minimumQuantity, 
+                price: selectedVariantDetails.offerPrice,
+                quantity: minimumQuantity,
                 incrementQuantity: incrementQuantityValue,
-                unitID: productDetails.unitID._id, 
-                variantID: selectedVariantDetails._id, 
-                userID: loginid, 
-                iGSTper: 18, 
-                sGSTper: 9, 
+                unitID: productDetails.unitID._id,
+                variantID: selectedVariantDetails._id,
+                userID: loginid,
+                iGSTper: 18,
+                sGSTper: 9,
                 cGSTper: 9
             }
             dispatch(addItemToCart(item));
-            setShowAlert(true);
-            setAlertVariant("success");
-            setAlertMessage("Added to cart");
-            setTimeout(() => { setShowAlert(false) }, 2000);
+            // setShowAlert(true);
+            // setAlertVariant("success");
+            // setAlertMessage("Added to cart");
+            // setTimeout(() => { setShowAlert(false) }, 2000);
         }
     }
 
@@ -156,6 +157,7 @@ export default function ProductDetails() {
             <div className="colorlib-product">
 
                 <div className="container">
+
                     {loading ?
 
                         <Row style={{ justifyContent: "center", alignContent: "center" }}>
@@ -189,44 +191,90 @@ export default function ProductDetails() {
                                 <Col lg>
 
                                     <Row>
-                                        <Col><Form.Label style={{ fontSize: 25, color: Colors.black, fontWeight: 400 }}>{productDetails.productName}</Form.Label></Col>
+                                        <Col>
+                                            <Form.Label style={{ fontSize: 25, color: Colors.black, fontWeight: 400 }}>
+                                                {productDetails.productName}
+                                            </Form.Label>
+                                        </Col>
                                     </Row>
 
                                     <Row>
                                         {/* <Col><Form.Label style={{ fontSize: 18, fontWeight: "bold", color: Colors.golden }}>₹ {product.price.toFixed(2)}</Form.Label></Col> */}
-                                        <Col><Form.Label style={{ fontSize: 18, fontWeight: "bold", color: Colors.golden }}>₹ Price Range</Form.Label></Col>
+                                        <Col>
+                                            <Form.Label style={{ fontSize: 18, fontWeight: "bold", color: Colors.golden }}>
+                                                ₹ Price Range
+                                            </Form.Label>
+                                        </Col>
                                     </Row>
 
                                     <Row>
-                                        <Col><Form.Label style={{ fontSize: 14, color: Colors.darkGrey }}>{productDetails.productName}</Form.Label></Col>
+                                        <Col>
+                                            <Form.Label style={{ fontSize: 14, color: Colors.darkGrey }}>
+                                                {productDetails.productName}
+                                            </Form.Label>
+                                        </Col>
                                     </Row>
 
                                     <Row>
-                                        <Col><Form.Label> <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>SKU:</b><span style={{ fontSize: 14, color: Colors.darkGrey }}> {selectedVariantDetails.SKU} </span> </Form.Label></Col>
+                                        <Col>
+                                            <Form.Label>
+                                                <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>SKU:</b>
+                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> {selectedVariantDetails.SKU} </span>
+                                            </Form.Label>
+                                        </Col>
                                     </Row>
 
                                     <Row>
-                                        <Col><Form.Label> <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Size:</b> <span style={{ fontSize: 14, color: Colors.darkGrey }}> size </span> </Form.Label></Col>
+                                        <Col>
+                                            <Form.Label>
+                                                <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Size:</b>
+                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> </span>
+                                            </Form.Label>
+                                        </Col>
                                     </Row>
 
                                     <Row>
-                                        <Col><Form.Label> <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Shipping Weight:</b><span style={{ fontSize: 14, color: Colors.darkGrey }}> weight </span> </Form.Label></Col>
+                                        <Col>
+                                            <Form.Label>
+                                                <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Shipping Weight:</b>
+                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> </span>
+                                            </Form.Label>
+                                        </Col>
                                     </Row>
 
                                     <Row>
-                                        <Col><Form.Label> <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Availability:</b> <span style={{ fontSize: 14, color: Colors.darkGrey }}> Availability </span> </Form.Label></Col>
+                                        <Col>
+                                            <Form.Label>
+                                                <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Availability:</b>
+                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> </span>
+                                            </Form.Label>
+                                        </Col>
                                     </Row>
 
                                     <Row>
-                                        <Col><Form.Label> <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Category:</b> <span style={{ fontSize: 14, color: Colors.darkGrey }}>{productDetails.catID ? productDetails.catID.categoryName : null}  </span> </Form.Label></Col>
+                                        <Col>
+                                            <Form.Label>
+                                                <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Category:</b>
+                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> {productDetails.catID ? productDetails.catID.categoryName : null} </span>
+                                            </Form.Label>
+                                        </Col>
                                     </Row>
 
                                     <Row>
-                                        <Col><Form.Label> <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Tags:</b> <span style={{ fontSize: 14, color: Colors.darkGrey }}> tags </span> </Form.Label></Col>
+                                        <Col>
+                                            <Form.Label>
+                                                <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Tags:</b>
+                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}>  </span>
+                                            </Form.Label>
+                                        </Col>
                                     </Row>
 
                                     <Row>
-                                        <Col><Form.Label> <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Size:</b> </Form.Label></Col>
+                                        <Col>
+                                            <Form.Label>
+                                                <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Size:</b>
+                                            </Form.Label>
+                                        </Col>
                                     </Row>
 
                                     <Row>
@@ -242,9 +290,16 @@ export default function ProductDetails() {
 
                                     {selectedVariant !== "- Select Size -" ?
                                         <Row style={{ marginTop: 20 }}>
-                                            <Col><Form.Label> <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Price:</b> </Form.Label>
-                                                <span style={{ fontSize: 14, fontWeight: "bold", color: Colors.lightGrey, textDecoration: 'line-through', marginLeft: 10, marginRight: 10 }}> ₹ {selectedVariantDetails.regularPrice} </span>
-                                                <span style={{ fontSize: 16, fontWeight: "bold", color: Colors.golden, }}> ₹ {selectedVariantDetails.offerPrice} </span>
+                                            <Col>
+                                                <Form.Label>
+                                                    <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Price:</b>
+                                                </Form.Label>
+                                                <span style={{ fontSize: 14, fontWeight: "bold", color: Colors.lightGrey, textDecoration: 'line-through', marginLeft: 10, marginRight: 10 }}>
+                                                    ₹ {selectedVariantDetails.regularPrice}
+                                                </span>
+                                                <span style={{ fontSize: 16, fontWeight: "bold", color: Colors.golden, }}>
+                                                    ₹ {selectedVariantDetails.offerPrice}
+                                                </span>
                                             </Col>
                                         </Row>
                                         :
@@ -257,11 +312,11 @@ export default function ProductDetails() {
 
                                     <Row className="align-items-center">
                                         <Col xs="auto">
-                                            <Button
-                                                variant="secondary"
+                                            <Button variant="secondary"
                                                 style={{ backgroundColor: Colors.primaryViolet, borderRadius: 4, borderColor: Colors.primaryViolet, margin: 2, width: 40, padding: 10, }}
-                                                onClick={() => { decrementQuantity() }}
-                                            > - </Button>
+                                                onClick={() => { decrementQuantity() }}>
+                                                -
+                                            </Button>
                                         </Col>
                                         <Col sm={2}>
                                             <Form.Control
@@ -272,11 +327,11 @@ export default function ProductDetails() {
                                                 disabled />
                                         </Col>
                                         <Col xs="auto">
-                                            <Button
-                                                variant="secondary"
+                                            <Button variant="secondary"
                                                 style={{ backgroundColor: Colors.primaryViolet, borderRadius: 4, borderColor: Colors.primaryViolet, margin: 2, width: 40, padding: 10, }}
-                                                onClick={() => { incrementQuantity() }}
-                                            > + </Button>
+                                                onClick={() => { incrementQuantity() }}>
+                                                +
+                                            </Button>
                                         </Col>
                                     </Row>
 
@@ -306,24 +361,54 @@ export default function ProductDetails() {
                                             <div className="bd-example bd-example-tabs">
                                                 <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
                                                     <li className="nav-item">
-                                                        <a className="nav-link active" id="pills-description-tab" data-toggle="pill" href="#pills-description" role="tab" aria-controls="pills-description" aria-expanded="true">Description</a>
+                                                        <a className="nav-link active"
+                                                            id="pills-description-tab"
+                                                            data-toggle="pill"
+                                                            href="#pills-description"
+                                                            role="tab"
+                                                            aria-controls="pills-description"
+                                                            aria-expanded="true">
+                                                            Description
+                                                        </a>
                                                     </li>
                                                     <li className="nav-item">
-                                                        <a className="nav-link" id="pills-manufacturer-tab" data-toggle="pill" href="#pills-manufacturer" role="tab" aria-controls="pills-manufacturer" aria-expanded="true">Additional Info</a>
+                                                        <a className="nav-link"
+                                                            id="pills-manufacturer-tab"
+                                                            data-toggle="pill"
+                                                            href="#pills-manufacturer"
+                                                            role="tab"
+                                                            aria-controls="pills-manufacturer"
+                                                            aria-expanded="true">
+                                                            Additional Info
+                                                        </a>
                                                     </li>
                                                     <li className="nav-item">
-                                                        <a className="nav-link" id="pills-reviews-tab" data-toggle="pill" href="#pills-reviews" role="tab" aria-controls="pills-reviews" aria-expanded="true">Reviews</a>
+                                                        <a className="nav-link"
+                                                            id="pills-reviews-tab"
+                                                            data-toggle="pill"
+                                                            href="#pills-reviews"
+                                                            role="tab"
+                                                            aria-controls="pills-reviews"
+                                                            aria-expanded="true">
+                                                            Reviews
+                                                        </a>
                                                     </li>
                                                 </ul>
                                                 <div className="tab-content" id="pills-tabContent">
                                                     <div className="tab-pane border fade show active" id="pills-description" role="tabpanel" aria-labelledby="pills-description-tab">
-                                                        <p style={{ whiteSpace: 'pre-line', color: Colors.darkGrey, fontSize: 14 }}>description</p>
+                                                        <p style={{ whiteSpace: 'pre-line', color: Colors.darkGrey, fontSize: 14 }}>
+                                                            description
+                                                        </p>
                                                     </div>
                                                     <div className="tab-pane border fade" id="pills-manufacturer" role="tabpanel" aria-labelledby="pills-manufacturer-tab">
-                                                        <p style={{ whiteSpace: 'pre-line', color: Colors.darkGrey, fontSize: 14 }}>additionalinfo</p>
+                                                        <p style={{ whiteSpace: 'pre-line', color: Colors.darkGrey, fontSize: 14 }}>
+                                                            additionalinfo
+                                                        </p>
                                                     </div>
                                                     <div className="tab-pane border fade" id="pills-reviews" role="tabpanel" aria-labelledby="pills-reviews-tab">
-                                                        <p style={{ whiteSpace: 'pre-line', color: Colors.darkGrey, fontSize: 14 }}>reviews</p>
+                                                        <p style={{ whiteSpace: 'pre-line', color: Colors.darkGrey, fontSize: 14 }}>
+                                                            reviews
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>

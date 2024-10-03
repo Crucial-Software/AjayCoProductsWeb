@@ -6,7 +6,8 @@ import { Button, Container, Row, Col, Modal, Image, CloseButton, Form } from 're
 import { Colors } from '../common/ConstantStyles'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux';
-import { removeItemFromCart, incrementItemQuantity, decrementItemQuantity } from '../redux/actions/cartAction'
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { removeItemFromCart, incrementItemQuantity, decrementItemQuantity, fetchCartItems } from '../redux/actions/cartAction'
 import { API_BASE } from "../components/urlLink";
 
 export default function Cart() {
@@ -17,6 +18,7 @@ export default function Cart() {
     const role = localStorage.getItem("userRole");
 
     const { cart } = useSelector(state => state.cart);
+    const loading = useSelector((state) => state.cart.loading);
 
     const [show, setShow] = useState(false);
     const [showNoItems, setShowNoItems] = useState(false);
@@ -28,21 +30,58 @@ export default function Cart() {
             left: 0,
             behavior: "smooth"
         });
-    }, [])
+        let toInput = {
+            userID: loginid,
+        };
+        dispatch(fetchCartItems(toInput));
+    }, [dispatch, loginid])
 
     const navigate = useNavigate();
 
     const removefromCart = (item) => {
         setShow(true);
-        setSelectedItemToRemove(item);
+        setSelectedItemToRemove(item._id);
+
     }
 
     const incrementQuantity = (pItem) => {
-        dispatch(incrementItemQuantity(pItem));
+        let item = {
+            _id: pItem._id,
+            price: pItem.price,
+            quantity: parseInt(pItem.quantity) + 6,
+            incrementQuantity: 6,
+            unitID: pItem.unitID._id,
+            variantID: pItem.variantID._id,
+            userID: loginid,
+            iGSTper: 18,
+            sGSTper: 9,
+            cGSTper: 9,
+            status: pItem.status
+        }
+        dispatch(incrementItemQuantity(item));
     }
 
     const decrementQuantity = (pItem) => {
-        dispatch(decrementItemQuantity(pItem));
+        let item = {
+            _id: pItem._id,
+            price: pItem.price,
+            quantity: parseInt(pItem.quantity) - 6,
+            incrementQuantity: 6,
+            unitID: pItem.unitID._id,
+            variantID: pItem.variantID._id,
+            userID: loginid,
+            iGSTper: 18,
+            sGSTper: 9,
+            cGSTper: 9,
+            status: pItem.status
+        }
+        if(parseInt(pItem.quantity) - 6 === 0){
+            setShow(true);
+            setSelectedItemToRemove(pItem._id);
+        } else{
+            dispatch(decrementItemQuantity(item));
+        }
+        
     }
 
     return (
@@ -70,7 +109,13 @@ export default function Cart() {
                             variant="outline-secondary"
                             size="sm"
                             style={{ backgroundColor: Colors.primaryViolet, borderWidth: 1, borderColor: Colors.primaryViolet, color: Colors.white, width: 75 }}
-                            onClick={() => { setShow(false); dispatch(removeItemFromCart(selectedItemToRemove)); }}
+                            onClick={() => {
+                                setShow(false);
+                                let toInput = {
+                                    _id: selectedItemToRemove,
+                                };
+                                dispatch(removeItemFromCart(toInput));
+                            }}
                         > Yes </Button>
                     </Modal.Footer>
                 </Modal>
@@ -82,12 +127,12 @@ export default function Cart() {
                     </Modal.Header>
                     <Modal.Body style={{ fontSize: 14 }}>Your cart is empty. Please add some items in your cart.</Modal.Body>
                     <Modal.Footer>
-                        <Button
-                            variant="outline-secondary"
+                        <Button variant="outline-secondary"
                             size="sm"
                             style={{ backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.primaryViolet, color: Colors.primaryViolet, width: 75 }}
-                            onClick={() => { setShowNoItems(false) }}
-                        > Close </Button>
+                            onClick={() => { setShowNoItems(false) }} >
+                            Close
+                        </Button>
                     </Modal.Footer>
                 </Modal>
 
@@ -136,36 +181,50 @@ export default function Cart() {
                     <Col sm={1}>Remove</Col>
                 </Row>
                 <Row>
-                    {cart.length !== 0 ?
-                        cart.map((item, index) => (
-                            <Row key={index + 1} className="product-cart d-flex align-items-center" style={{ backgroundColor: Colors.white, padding: 5, fontSize: 14, textAlign: "center", color: Colors.darkGrey }}>
-                                <Col sm={4}>
-                                    <div className="product-img">
-                                        <img src={`${API_BASE}/images/category/category_1726663680324.png`} alt="product_image" height={75} />
-                                    </div>
-                                    <div className="display-tc">
-                                        <p>{item.productName}</p>
-                                        <span style={{ fontSize: 12 }}>{item.SKU}</span>
-                                    </div>
-                                </Col>
-                                <Col sm={2} style={{ wordBreak: "break-all" }}>{item.selectedVariant}</Col>
-                                <Col sm={1}>₹ {item.price.toFixed(2)}</Col>
-                                <Col sm={2}>
-                                    <Image className="closeImage" src="../images/minus.png" style={{ width: 25, height: 25, alignSelf: "center", margin: 5, padding: 8, backgroundColor: Colors.grey }} onClick={() => { decrementQuantity(item) }} />
-                                    <span className="price">{item.quantity}</span>
-                                    <Image className="closeImage" src="../images/plus.png" style={{ width: 25, height: 25, alignSelf: "center", margin: 5, padding: 8, backgroundColor: Colors.grey }} onClick={() => { incrementQuantity(item) }} />
-                                </Col>
-                                <Col sm={2}>₹ {(item.price * item.quantity).toFixed(2)}</Col>
-                                <Col sm={1} ><CloseButton onClick={() => { removefromCart(item) }} variant="light" /></Col>
-                            </Row>
-                        ))
+                    {loading ?
+                        <ProgressSpinner style={{ width: '25px', height: '25px', marginTop: "50px", marginBottom: "50px" }} />
                         :
-                        <div>
-                            <Row style={{ backgroundColor: Colors.white, color: Colors.darkGrey, marginTop: 30, marginBottom: 30, fontSize: 14, textAlign: "center" }}>
-                                <span>No Items in Cart</span>
-                            </Row>
-                            <hr />
-                        </div>
+                        <>
+                            {cart.length !== 0 ?
+                                cart.map((item, index) => (
+                                    <Row key={index + 1} className="product-cart d-flex align-items-center" style={{ backgroundColor: Colors.white, padding: 5, fontSize: 14, textAlign: "center", color: Colors.darkGrey }}>
+                                        <Col sm={4}>
+                                            <div className="product-img">
+                                                <img src={`${API_BASE}/images/category/category_1726663680324.png`} alt="product_image" height={75} />
+                                            </div>
+                                            <div className="display-tc">
+                                                <p>{item.variantID ? item.variantID.productID.productName : null}</p>
+                                                <span style={{ fontSize: 12 }}>{item.SKU}</span>
+                                            </div>
+                                        </Col>
+                                        <Col sm={2} style={{ wordBreak: "break-all" }}>{item.variantID ? item.variantID._id : null}</Col>
+                                        <Col sm={1}>₹ {(item.price).toFixed(2)}</Col>
+                                        <Col sm={2}>
+                                            <Image
+                                                className="closeImage"
+                                                src="../images/minus.png"
+                                                style={{ width: 25, height: 25, alignSelf: "center", margin: 5, padding: 8, backgroundColor: Colors.grey }}
+                                                onClick={() => { decrementQuantity(item) }} />
+                                            <span className="price">{item.quantity}</span>
+                                            <Image
+                                                className="closeImage"
+                                                src="../images/plus.png"
+                                                style={{ width: 25, height: 25, alignSelf: "center", margin: 5, padding: 8, backgroundColor: Colors.grey }}
+                                                onClick={() => { incrementQuantity(item) }} />
+                                        </Col>
+                                        <Col sm={2}>₹ {(item.price * item.quantity).toFixed(2)}</Col>
+                                        <Col sm={1} ><CloseButton onClick={() => { removefromCart(item) }} /></Col>
+                                    </Row>
+                                ))
+                                :
+                                <div>
+                                    <Row style={{ backgroundColor: Colors.white, color: Colors.darkGrey, marginTop: 30, marginBottom: 30, fontSize: 14, textAlign: "center" }}>
+                                        <span>No Items in Cart</span>
+                                    </Row>
+                                    <hr />
+                                </div>
+                            }
+                        </>
                     }
                 </Row>
 
@@ -211,7 +270,7 @@ export default function Cart() {
                                 loginid ?
                                     <>
                                         {role === "customer" ?
-                                            navigate("/checkout", { state: { orderTotal: cart.reduce((acc, item) => acc += (item.price * item.quantity), 0).toFixed(2) } })
+                                            navigate("/checkout", { state: { orderTotal: cart.reduce((acc, item) => acc += (item.price * item.quantity), 0) } })
                                             :
                                             navigate("/placeorder")
                                         }

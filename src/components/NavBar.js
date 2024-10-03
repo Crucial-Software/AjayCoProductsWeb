@@ -3,11 +3,13 @@ import { Image, Nav, Navbar, NavDropdown, Container, Form, Button } from 'react-
 import { Colors } from '../common/ConstantStyles';
 import './CommonStyle.css';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getAllCategories } from './api';
+import { fetchCartItems } from '../redux/actions/cartAction';
 
 export default function NavBar() {
 
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
     const [url, setUrl] = useState(null);
@@ -22,9 +24,13 @@ export default function NavBar() {
     const { cart } = useSelector(state => state.cart);
 
     useEffect(() => {
+        let toInput = {
+            userID: loginid,
+        };
+        dispatch(fetchCartItems(toInput));
         fetchAllCategories();
         setUrl(location.pathname);
-    }, [location])
+    }, [location, dispatch, loginid])
 
     const fetchAllCategories = async () => {
         await getAllCategories()
@@ -51,27 +57,27 @@ export default function NavBar() {
         <div>
             <nav className="colorlib-nav" role="navigation">
                 <div className="top-menu">
-                    <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
+                    <Navbar collapseOnSelect expand="md" className="bg-body-tertiary">
                         <Container fluid>
                             <Navbar.Brand href={Link} to="/home"><Image src="../images/AjayCoProductsLogo.png" alt='gradient' height={60} width={200} /></Navbar.Brand>
                             <Navbar.Toggle aria-controls={`offcanvasNavbar-expand-md`} />
                             <Navbar.Collapse id="responsive-navbar-nav">
                                 <Nav className="justify-content-center flex-grow-1">
-                                    <Nav.Link style={{ marginLeft: 10, marginRight: 10 }} as={Link} className={"underline" + (url === "/home" ? " active" : "")} to="/home">Home</Nav.Link>
-                                    <Nav.Link style={{ marginLeft: 10, marginRight: 10 }} as={Link} className={"underline" + (url === "/categories" ? " active" : "")} to="/categories">Categories</Nav.Link>
+                                    <Nav.Link style={{ marginLeft: 10, marginRight: 10, textAlign: "center" }} as={Link} className={"underline" + (url === "/home" ? " activenav" : "")} to="/home">Home</Nav.Link>
+                                    <Nav.Link style={{ marginLeft: 10, marginRight: 10, textAlign: "center" }} as={Link} className={"underline" + (url === "/categories" ? " activenav" : "")} to="/categories">Categories</Nav.Link>
                                     <NavDropdown
                                         title="Shop"
                                         id="collapsible-nav-dropdown"
-                                        style={{ marginLeft: 10, marginRight: 10 }}
+                                        style={{ marginLeft: 10, marginRight: 10, textAlign: "center" }}
                                     >
                                         {categoryList.map((data, key) =>
                                             <NavDropdown.Item as={Link} to="/shop" state={{ categoryId: data._id }} key={data._id}>{data.categoryName}</NavDropdown.Item>
                                         )}
 
                                     </NavDropdown>
-                                    <Nav.Link style={{ marginLeft: 10, marginRight: 10 }} as={Link} className={"underline" + (url === "/aboutus" ? " active" : "")} to="/aboutus">About us</Nav.Link>
-                                    <Nav.Link style={{ marginLeft: 10, marginRight: 10 }} as={Link} className={"underline" + (url === "/contactus" ? " active" : "")} to="/contactus">Contact Us</Nav.Link>
-                                    <Nav.Link style={{ marginLeft: 10, marginRight: 10 }} as={Link} className={"underline" + (url === "/cart" ? " active" : "")} to="/cart">Cart <i className="icon-shopping-cart" /> [{cart.length}]</Nav.Link>
+                                    <Nav.Link style={{ marginLeft: 10, marginRight: 10, textAlign: "center" }} as={Link} className={"underline" + (url === "/aboutus" ? " activenav" : "")} to="/aboutus">About us</Nav.Link>
+                                    <Nav.Link style={{ marginLeft: 10, marginRight: 10, textAlign: "center" }} as={Link} className={"underline" + (url === "/contactus" ? " activenav" : "")} to="/contactus">Contact Us</Nav.Link>
+                                    <Nav.Link style={{ marginLeft: 10, marginRight: 10, textAlign: "center" }} as={Link} className={"underline" + (url === "/cart" ? " activenav" : "")} to="/cart">Cart <i className="icon-shopping-cart" /> [{cart.length}]</Nav.Link>
                                     {!loginid ?
                                         <Nav.Link style={{ marginLeft: 10, marginRight: 10 }} as={Link} to="/login">Login</Nav.Link>
                                         :

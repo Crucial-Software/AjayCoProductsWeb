@@ -12,10 +12,10 @@ a.dropdown-item {
 }
 
 .navbar-nav a:hover {
-    /* background-color: #431D72 !important;
-    color: #fff !important; */
     color: #431D72 !important;
     font-weight: 500 !important;
+    background-color: #f0e3ff !important;
+    border-radius: 5px;
 }
 
 .navbar-nav a {
@@ -28,24 +28,9 @@ nav a {
     color: #7F7F7F;
 }
 nav a:hover {
-    /* background-color: #431D72 !important;
-    color: #fff !important; */
     color: #431D72 !important;
     font-weight: 500 !important;
 }
-
-/* li a:hover {
-    color: #C23764 !important;
-}
-
-li,
-p,
-li a {
-    color: #626262 !important;
-    font-size: 14px !important;
-}
-
-*/
 
 .countNumbers {
     color: #fff !important;
@@ -54,5 +39,11 @@ li a {
 
 .countText {
     color: #fff !important;
+}
+
+.activenav{
+    color: #fff !important;
+    background-color: #431D72 !important;
+    border-radius: 5px;
 }
 

@@ -49,7 +49,7 @@ export default function Login() {
                         return Promise.reject(error);
                     }
 
-                    console.log("loginUser Response: " + JSON.stringify(data));
+                    //console.log("loginUser Response: " + JSON.stringify(data));
 
                     const userInfo = data.data.user_data;
 

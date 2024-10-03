@@ -25,7 +25,19 @@ export default function CategoryLayout({ items }) {
                             <Card.Title style={{ color: Colors.darkGrey, fontWeight: "bold", fontSize: 16, textAlign: "center" }}>{item.categoryName}</Card.Title>
                         </Card.Footer>
                     </Card>
-                )) : null}
+                ))
+                    :
+                    <Row>
+                        <p style={{ padding: 20, textAlign: "center", marginBottom: 50, color: Colors.darkGrey, }}>Error in loading categories</p>
+                    </Row>
+                }
+
+                {items.length === 0 ?
+                    <Row>
+                        <p style={{ padding: 20, textAlign: "center", marginBottom: 50, color: Colors.darkGrey, }}>No categories found</p>
+                    </Row>
+                    : null
+                }
             </Row>
         </Container>
     )
