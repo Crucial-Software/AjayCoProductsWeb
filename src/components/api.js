@@ -668,3 +668,16 @@ export const updateInCart = async (toInput) => {
         console.error("api - updateInCart error: " + error);
     }
 }
+
+export const createOrderMaster = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/createorder`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - createOrderMaster error: " + error);
+    }
+}

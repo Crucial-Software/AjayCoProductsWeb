@@ -22,7 +22,6 @@ export default function ProductDetails() {
     let { state } = useLocation();
     const productId = state.productId;
 
-
     const [loading, setLoading] = useState(false);
     const [productDetails, setProductDetails] = useState([]);
     const [selectedVariant, setSelectedVariant] = useState("- Select Size -");

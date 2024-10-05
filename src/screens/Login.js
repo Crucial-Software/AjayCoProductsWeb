@@ -52,6 +52,7 @@ export default function Login() {
                     //console.log("loginUser Response: " + JSON.stringify(data));
 
                     const userInfo = data.data.user_data;
+                    const customerInfo = data.data.customer_data;
 
                     if (data.data) {
                         localStorage.setItem("userLoginId", userInfo._id);
@@ -59,6 +60,7 @@ export default function Login() {
                         localStorage.setItem("userMobile", userInfo.mobile);
                         localStorage.setItem("userEmail", userInfo.email);
                         localStorage.setItem("userRole", userInfo.role);
+                        localStorage.setItem("customerId", customerInfo._id);
 
                         if(userInfo.role === "admin"){
                             navigate('/dashboard');

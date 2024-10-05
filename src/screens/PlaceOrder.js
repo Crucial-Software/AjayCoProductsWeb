@@ -4,13 +4,15 @@ import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
 import { Container, Row, Col, Button } from 'react-bootstrap'
 import { Colors } from '../common/ConstantStyles'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 export default function PlaceOrder() {
 
     const role = localStorage.getItem("userRole");
 
     const navigate = useNavigate();
+    let { state } = useLocation();
+    const { paymentStatus, paymentMessage } = state.paymentStatus;
 
     useEffect(() => {
         window.scrollTo({
@@ -20,7 +22,7 @@ export default function PlaceOrder() {
         });
     }, [])
 
-   
+
     return (
         <>
             <TopHeader />
@@ -66,9 +68,19 @@ export default function PlaceOrder() {
 
                 <Row style={{ marginTop: 50 }}>
                     <Col style={{ textAlign: "center" }}>
-                        <p className="icon-addcart"><span><i className="icon-check"></i></span></p>
-                        <h2 className="mb-4">Order Placed Successfully.</h2>
-                        <h6 className="mb-4">Thank you for purchasing.</h6>
+                        {paymentStatus === "Success" ?
+                            <>
+                                <p className="icon-addcart"><span><i className="fa fa-check"></i></span></p>
+                                <h2 className="mb-4">{paymentMessage}</h2>
+                                <h6 className="mb-4">Thank you for purchasing.</h6>
+                            </>
+                            :
+                            <>
+                                <p className="icon-addcart"><span><i className="fa fa-times"></i></span></p>
+                                <h2 className="mb-4">{paymentMessage}</h2>
+                            </>
+                        }
+
                         <Button
                             variant="outline-secondary"
                             size="md"
