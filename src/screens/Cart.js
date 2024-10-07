@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import TopHeader from '../components/TopHeader'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
@@ -9,13 +9,22 @@ import { useSelector, useDispatch } from 'react-redux';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { removeItemFromCart, incrementItemQuantity, decrementItemQuantity, fetchCartItems } from '../redux/actions/cartAction'
 import { API_BASE } from "../components/urlLink";
+import { Toast } from 'primereact/toast';
+import { createOrderMaster } from '../components/api'
 
 export default function Cart() {
 
     const dispatch = useDispatch();
+    const toast = useRef(null);
+
+    const navigate = useNavigate();
 
     const loginid = localStorage.getItem("userLoginId");
     const role = localStorage.getItem("userRole");
+    const userName = localStorage.getItem("userName");
+    const userMobile = localStorage.getItem("userMobile");
+    const userEmail = localStorage.getItem("userEmail");
+    const customerId = localStorage.getItem("customerId");
 
     const { cart } = useSelector(state => state.cart);
     const loading = useSelector((state) => state.cart.loading);
@@ -36,12 +45,9 @@ export default function Cart() {
         dispatch(fetchCartItems(toInput));
     }, [dispatch, loginid])
 
-    const navigate = useNavigate();
-
     const removefromCart = (item) => {
         setShow(true);
         setSelectedItemToRemove(item._id);
-
     }
 
     const incrementQuantity = (pItem) => {
@@ -75,13 +81,85 @@ export default function Cart() {
             cGSTper: 9,
             status: pItem.status
         }
-        if(parseInt(pItem.quantity) - 6 === 0){
+        if (parseInt(pItem.quantity) - 6 === 0) {
             setShow(true);
             setSelectedItemToRemove(pItem._id);
-        } else{
+        } else {
             dispatch(decrementItemQuantity(item));
         }
+
+    }
+
+    const handleConfirmOrder = async() => {
+        if (cart.length === 0) {
+            setShowNoItems(true);
+        } else {
+           if(loginid){
+                if(role === "customer"){
+                    navigate("/checkout", { state: { orderTotal: cart.reduce((acc, item) => acc += (item.price * item.quantity), 0) } })
+                } else{
+                    let toInput = {
+                        name: userName,
+                        email: userEmail,
+                        mobile: userMobile,
+                        customerID: customerId,
+                        orderType: "Retail",
+                        totalAmount: cart.reduce((acc, item) => acc += (item.price * item.quantity), 0),
+                        totalDiscount: 0,
+                        netAmount: cart.reduce((acc, item) => acc += (item.price * item.quantity), 0),
+                        totalTax: 1.5,
+                        totalIGST: 1.5,
+                        paymentStatus: "pending",
+                        orderStatus: "pending",
+                        createdByid: loginid
+                    };
         
+                    await createOrderMaster(toInput)
+                        .then(async response => {
+                            const isJson = response.headers.get('content-type')?.includes('application/json');
+                            const data = isJson && await response.json();
+
+                            console.log("data: " + data.status);
+        
+                            if (!response.ok) {
+                                toast.current.show({life: 3000, severity: 'error', summary: data.error.undefined});
+                            }
+        
+                            if (response.status === 422) {
+                                toast.current.show({life: 3000, severity: 'error', summary: data.error.undefined});
+                            }
+        
+                            if (data.status === "Success") {
+                                //console.log("Razorpay Process: " + JSON.stringify(data.data));
+                                //console.log("Amount: " + data.data.netAmount)
+                                console.log("OrderId: " + data.data._id)
+                                navigate("/placeorder", {
+                                    state: {
+                                        paymentStatus: "Success",
+                                        paymentMessage: "Order Placed Successfully",
+                                        paymentId: "",
+                                        orderId: data.data._id,
+                                    }
+                                })
+                            } else {
+                                navigate("/placeorder", {
+                                    state: {
+                                        paymentStatus: "Failed",
+                                        paymentMessage: "Order Confirmation Failed",
+                                        paymentId: "",
+                                        orderId: data.data._id,
+                                    }
+                                })
+                            }
+                        })
+                        .catch((error) => {
+                            toast.current.show({life: 3000, severity: 'error', summary: error});
+                        });
+                }
+           } else{
+                navigate("/login");
+           }
+        }
     }
 
     return (
@@ -91,6 +169,8 @@ export default function Cart() {
             <NavBar />
 
             <Container >
+
+                <Toast ref={toast} />
 
                 <Modal show={show} onHide={() => { setShow(false) }} size="md">
                     <Modal.Header>
@@ -255,31 +335,26 @@ export default function Cart() {
                     <Col lg={4}>
                         <div className="cart-detail">
                             <ul>
-                                <li><span><strong>Order Total</strong></span> <span style={{ textAlign: "right" }}><strong>₹ {cart.reduce((acc, item) => acc += (item.price * item.quantity), 0).toFixed(2)}</strong></span></li>
+                                <li>
+                                    <span>
+                                        <strong>Order Total</strong>
+                                    </span>
+                                    <span style={{ textAlign: "right" }}>
+                                        <strong>₹ {cart.reduce((acc, item) => acc += (item.price * item.quantity), 0).toFixed(2)}</strong>
+                                    </span>
+                                </li>
                             </ul>
                         </div>
                     </Col>
-
                 </Row>
                 <Row>
                     <Col style={{ textAlign: "center" }}>
-                        <Button variant="secondary" size="md" style={{ backgroundColor: Colors.primaryViolet, fontWeight: "bold" }} onClick={() => {
-                            if (cart.length === 0) {
-                                setShowNoItems(true);
-                            } else {
-                                loginid ?
-                                    <>
-                                        {role === "customer" ?
-                                            navigate("/checkout", { state: { orderTotal: cart.reduce((acc, item) => acc += (item.price * item.quantity), 0) } })
-                                            :
-                                            navigate("/placeorder")
-                                        }
-                                    </>
-                                    :
-                                    navigate("/login");
-                            }
-
-                        }}> CONFIRM ORDER </Button>
+                        <Button
+                            variant="secondary"
+                            size="md"
+                            style={{ backgroundColor: Colors.primaryViolet, fontWeight: "bold" }}
+                            onClick={() => { handleConfirmOrder(); }}
+                        > CONFIRM ORDER </Button>
                     </Col>
                 </Row>
             </Container>

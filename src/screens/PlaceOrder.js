@@ -12,7 +12,7 @@ export default function PlaceOrder() {
 
     const navigate = useNavigate();
     let { state } = useLocation();
-    const { paymentStatus, paymentMessage } = state.paymentStatus;
+    const { paymentStatus, paymentMessage, paymentId, orderId } = state;
 
     useEffect(() => {
         window.scrollTo({
@@ -20,8 +20,9 @@ export default function PlaceOrder() {
             left: 0,
             behavior: "smooth"
         });
-    }, [])
+    }, [paymentStatus])
 
+   
 
     return (
         <>
@@ -30,22 +31,7 @@ export default function PlaceOrder() {
 
             <Container>
 
-                {role === "dealer" ?
-                    <Row style={{ marginTop: 30 }}>
-                        <Col className="col-sm-12 offset-sm-2 text-center colorlib-heading">
-                            <div className="process-wrap">
-                                <div className="process text-center active">
-                                    <p><span>01</span></p>
-                                    <h3>Shopping Cart</h3>
-                                </div>
-                                <div className="process text-center active">
-                                    <p><span>02</span></p>
-                                    <h3>Order Complete</h3>
-                                </div>
-                            </div>
-                        </Col>
-                    </Row>
-                    :
+                {role === "customer" ?
                     <Row style={{ marginTop: 30 }}>
                         <Col>
                             <div className="process-wrap">
@@ -64,6 +50,21 @@ export default function PlaceOrder() {
                             </div>
                         </Col>
                     </Row>
+                    :
+                    <Row style={{ marginTop: 30 }}>
+                        <Col className="col-sm-12 offset-sm-2 text-center colorlib-heading">
+                            <div className="process-wrap">
+                                <div className="process text-center active">
+                                    <p><span>01</span></p>
+                                    <h3>Shopping Cart</h3>
+                                </div>
+                                <div className="process text-center active">
+                                    <p><span>02</span></p>
+                                    <h3>Order Complete</h3>
+                                </div>
+                            </div>
+                        </Col>
+                    </Row>
                 }
 
                 <Row style={{ marginTop: 50 }}>
@@ -72,12 +73,22 @@ export default function PlaceOrder() {
                             <>
                                 <p className="icon-addcart"><span><i className="fa fa-check"></i></span></p>
                                 <h2 className="mb-4">{paymentMessage}</h2>
+                                <h6>Order Id: {orderId}</h6>
+                                {role === "customer" ?
+                                    <h6>Payment Id: {paymentId}</h6>
+                                    : null
+                                }
                                 <h6 className="mb-4">Thank you for purchasing.</h6>
                             </>
                             :
                             <>
                                 <p className="icon-addcart"><span><i className="fa fa-times"></i></span></p>
                                 <h2 className="mb-4">{paymentMessage}</h2>
+                                <h6>Order Id: {orderId}</h6>
+                                {role === "customer" ?
+                                    <h6>Payment Id: {paymentId}</h6>
+                                    : null
+                                }
                             </>
                         }
 

@@ -46,7 +46,7 @@ function App() {
         <Route path='/productdetails' element={<ProductDetails />} />
         <Route path='/viewattachment' element={<ViewAttachment />} />
         <Route path='/login' element={<Login />} />
-        <Route path='/register' element={<ProtectedRoute Component={Register} />}  />
+        <Route path='/register' element={<Register/>}  />
         <Route path='/forgotpassword' element={<ForgotPassword />} />
         <Route path="/changepassword" element={<PrivateRoute Component={ChangePassword} userRole={"customer, dealer"} />} />
         <Route path='/privacypolicy' element={<PrivacyPolicy />} />

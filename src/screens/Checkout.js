@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import TopHeader from '../components/TopHeader'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
@@ -7,11 +7,13 @@ import { Colors } from '../common/ConstantStyles'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { createOrderMaster, getAllCitiesByStateId, getAllStates } from '../components/api'
 import { useRazorpay } from "react-razorpay";
+import { Toast } from 'primereact/toast';
 
 export default function Checkout() {
 
     const { Razorpay } = useRazorpay();
-    //const RAZORPAY_KEY_ID = process.env.RAZORPAY_ID;
+
+    const toast = useRef(null);
 
     const navigate = useNavigate();
     let { state } = useLocation();
@@ -33,14 +35,12 @@ export default function Checkout() {
     const [area, setArea] = useState("");
     const [pincode, setPincode] = useState("");
     const [additionalInformation, setAdditionalInformation] = useState("");
-    const [paymentMethod, setPaymentMethod] = useState("Cash On Delivery");
     const [termsAndConditions, setTermsAndConditions] = useState(false);
 
     const [states, setStates] = useState([]);
     const [stateValue, setStateValue] = useState("- Select State -");
     const [cities, setCities] = useState([]);
     const [cityValue, setCityValue] = useState("- Select City -");
-    const [updateMessage, setUpdateMessage] = useState("");
 
     useEffect(() => {
         window.scrollTo({
@@ -54,8 +54,6 @@ export default function Checkout() {
         setEmail(userEmail);
     }, [userName, userMobile, userEmail])
 
-
-
     const fetchAllStates = async () => {
         await getAllStates()
             .then(async response => {
@@ -64,13 +62,11 @@ export default function Checkout() {
                 if (response.ok) {
                     setStates(data.data);
                 } else {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>Error in loading states</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: 'Error in loading states' });
                 }
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
             });
     }
 
@@ -85,13 +81,11 @@ export default function Checkout() {
                 if (response.ok) {
                     setCities(data.data);
                 } else {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>Error in loading cities</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: 'Error in loading cities' });
                 }
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
             });
     }
 
@@ -101,33 +95,22 @@ export default function Checkout() {
         let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;  // eslint-disable-line
 
         if (pincode.length !== 6) {
-            setUpdateMessage(<span style={{ color: "red" }}>Enter a valid 6 digit pincode</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
-            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+            toast.current.show({ life: 3000, severity: 'error', summary: 'Enter a valid 6 digit pincode' });
         }
         else if (reg.test(email) === false) {
-            setUpdateMessage(<span style={{ color: "red" }}>Enter a valid email id</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
-            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+            toast.current.show({ life: 3000, severity: 'error', summary: 'Enter a valid email id' });
         }
         else if (mobile.length !== 10) {
-            setUpdateMessage(<span style={{ color: "red" }}>Enter a valid 10 digit mobile number</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
-            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+            toast.current.show({ life: 3000, severity: 'error', summary: 'Enter a valid 10 digit mobile number' });
         }
         else if (stateValue === "" || stateValue === "- Select State -") {
-            setUpdateMessage(<span style={{ color: "red" }}>Please select state</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
-            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+            toast.current.show({ life: 3000, severity: 'error', summary: 'Please select state' });
         }
         else if (cityValue === "" || cityValue === "- Select City -" || cityValue === null) {
-            setUpdateMessage(<span style={{ color: "red" }}>Please select city</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
-            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-        } else if (!termsAndConditions) {
-            setUpdateMessage(<span style={{ color: "red" }}>Please select terms and conditions</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
-            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+            toast.current.show({ life: 3000, severity: 'error', summary: 'Please select city' });
+        }
+        else if (!termsAndConditions) {
+            toast.current.show({ life: 3000, severity: 'error', summary: 'Please select terms and conditions' });
         }
 
         else {
@@ -144,7 +127,6 @@ export default function Checkout() {
             //     " additionalInformation: " + additionalInformation +
             //     " stateValue: " + stateValue +
             //     " cityValue: " + cityValue +
-            //     " paymentMethod: " + paymentMethod +
             //     " terms and conditions: " + termsAndConditions +
             //     " curstomerId: " + customerId +
             //     " addressType: " + addressType
@@ -179,85 +161,106 @@ export default function Checkout() {
                     const data = isJson && await response.json();
 
                     if (!response.ok) {
-                        setUpdateMessage(<span style={{ color: "red" }}>{data.error.undefined}</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
-                        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-                        // const error = (data && data.message) || response.status;
-                        // return Promise.reject(error);
+                        toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                     }
 
                     if (response.status === 422) {
-                        setUpdateMessage(<span style={{ color: "red" }}>{data.error.undefined}</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
-                        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+                        toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                     }
 
                     if (data.status === "Success") {
                         //console.log("Razorpay Process: " + JSON.stringify(data.data));
-                        console.log("Amount: " + data.data.netAmount)
-                        console.log("OrderId: " + data.data._id)
+                        //console.log("Amount: " + data.data.netAmount)
+                        //console.log("OrderId: " + data.data._id)
                         handlePayment(data.data._id, data.data.netAmount);
 
                     } else {
-                        setUpdateMessage(<span style={{ color: "red" }}>Error in placing Order. Please try again.</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
-                        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+                        toast.current.show({ life: 3000, severity: 'error', summary: "Error in placing Order. Please try again." });
                     }
 
                 })
                 .catch((error) => {
-                    setUpdateMessage(<span style={{ color: "red" }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
-                    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 });
         }
     }
 
     const handlePayment = async (orderId, orderAmount) => {
-
+        const Razorpay_Id = "rzp_live_eSgoNiHqgixk7J";
         try {
 
             const options = {
-                key: "rzp_live_eSgoNiHqgixk7J",
-                amount: "100",
+                key: Razorpay_Id,
+                amount: orderAmount * 100,
                 currency: "INR",
                 name: "Ajayco Products", // Add company details
                 description: "Payment for your order id: " + orderId, // Add order details
                 //order_id: orderId,
-                // this is make function which will verify the payment after making the payment 
-                // handler: async (response) => {
-                // try {
-                //     await fetch("http://localhost:3001/verify-payment", {
-                //         method: "POST",
-                //         headers: {
-                //             "Content-Type": "application/json",
-                //         },
+                //this is make function which will verify the payment after making the payment 
+                handler: async (response) => {
+                    console.log(response);
+                    // Most important step to capture and authorize the payment. This can be done of Backend server.
+                    const succeeded = crypto.HmacSHA256(`${orderId}|${response.razorpay_payment_id}`, Razorpay_Id).toString() === response.razorpay_signature;
 
-                //         body: JSON.stringify({
-                //             razorpay_order_id: response.razorpay_order_id,
-                //             razorpay_payment_id: response.razorpay_payment_id,
-                //             razorpay_signature: response.razorpay_signature,
-                //         }),
+                    // If successfully authorized. Then we can consider the payment as successful.
+                    try {
 
-                //     });
+                        // await fetch("http://localhost:3001/verify-payment", {
+                        //     method: "POST",
+                        //     headers: {
+                        //         "Content-Type": "application/json",
+                        //     },
+                        //     body: JSON.stringify({
+                        //         razorpay_order_id: response.razorpay_order_id,
+                        //         razorpay_payment_id: response.razorpay_payment_id,
+                        //         razorpay_signature: response.razorpay_signature,
+                        //     }),
 
-                //     navigate("/placeorder", { state: { paymentStatus: "Success", paymentMessage: "Payment successful!" } });
-                // } catch (err) {
-                //     navigate("/placeorder", { state: { paymentStatus: "Failed", paymentMessage: "Payment failed: " + err.message } });
-                // }
+                        // });
 
+                        if (succeeded) {
+                            //   handlePayment('succeeded', {
+                            //     orderId,
+                            //     paymentId,
+                            //     signature: response.razorpay_signature,
+                            //   });
+                            navigate("/placeorder", {
+                                state: {
+                                    paymentStatus: "Success",
+                                    paymentMessage: "Payment Successful",
+                                    paymentId: response.razorpay_payment_id,
+                                    orderId: response.razorpay_order_id,
+                                }
+                            });
+                        } else {
+                            //   handlePayment('failed', {
+                            //     orderId,
+                            //     paymentId: response.razorpay_payment_id,
+                            //   });
+                            navigate("/placeorder", {
+                                state: {
+                                    paymentStatus: "Failed",
+                                    paymentMessage: "Payment Failed",
+                                    paymentId: response.razorpay_payment_id,
+                                    orderId: response.razorpay_order_id
+                                }
+                            });
+                        }
+                    } catch (err) {
+                        toast.current.show({ life: 3000, severity: 'error', summary: err });
+                    }
 
-                //},
-                image:"../images/AjayCoProductsLogo.png",
-                "handler": function (response) {
-                    alert(response.razorpay_payment_id);
-                    alert(response.razorpay_order_id);
-                    alert(response.razorpay_signature)
                 },
-                prefill: {
-                    name: "John Doe", // add customer details
-                    email: "john@example.com", // add customer details
-                    contact: "9999999999", // add customer details
+                image: "../images/AjayCoProductsLogo.png",
+                // prefill: {
+                //     name: userName, // add customer details
+                //     email: userEmail, // add customer details
+                //     contact: userMobile, // add customer details
+                // },
+                prefill: { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+                    "name": "Gaurav Kumar", //your customer's name
+                    "email": "gaurav.kumar@example.com",
+                    "contact": "9000090000"  //Provide the customer's phone number for better conversion rates 
                 },
                 notes: {
                     address: "Razorpay Corporate Office",
@@ -267,6 +270,7 @@ export default function Checkout() {
                     color: "#3399cc",
                 },
             };
+            // All information is loaded in options
             const rzpay = new Razorpay(options);
             // this will open razorpay window for take the payment in the frontend under the hood it use inbuild javascript windows api 
             rzpay.open(options);
@@ -283,6 +287,9 @@ export default function Checkout() {
             <NavBar />
 
             <Container>
+
+                <Toast ref={toast} />
+
                 <Row style={{ marginTop: 30, marginBottom: 30 }}>
                     <Col>
                         <div className="process-wrap">
@@ -302,7 +309,6 @@ export default function Checkout() {
                     </Col>
                 </Row>
 
-                <div style={{ fontWeight: "bold", marginBottom: 10 }}>{updateMessage}</div>
                 <Form onSubmit={checkCheckoutData}>
                     <Row>
                         <Col lg={8}>
@@ -452,7 +458,7 @@ export default function Checkout() {
                                                     onChange={e => { setStateValue(e.target.value); getCitiesDropdownList(e.target.value); setCityValue(null); }}
                                                 >
                                                     <option value="- Select State -" id="- Select State -">- Select State -</option>
-                                                    {states.map((data, key) => <option key={data._id} value={data._id} id={data.stateName} >{data.stateName}</option>)}
+                                                    {states.map((data, key) => <option key={data._id} value={data._id}>{data.stateName}</option>)}
                                                 </Form.Control>
                                             </Form.Group>
                                         </Col>
@@ -563,7 +569,7 @@ export default function Checkout() {
                                                     <strong>Amount to be Paid</strong>
                                                 </span>
                                                 <span style={{ textAlign: "right" }}>
-                                                    <strong>₹ {orderTotal}</strong>
+                                                    <strong>₹ {orderTotal.toFixed(2)}</strong>
                                                 </span>
                                             </li>
                                         </ul>
@@ -578,28 +584,10 @@ export default function Checkout() {
                                         <Form.Group as={Row} className="mb-3">
                                             <Col md style={{ fontSize: 14 }}>
                                                 <Form.Check
+                                                    checked
                                                     type="radio"
-                                                    label="Direct Bank Transfer"
-                                                    value="Direct Bank Transfer"
-                                                    name="PaymentMethod"
-                                                    onChange={e => setPaymentMethod(e.target.value)}
-                                                    checked={paymentMethod === "Direct Bank Transfer"}
-                                                />
-                                                <Form.Check
-                                                    type="radio"
-                                                    label="Paypal"
-                                                    value="Paypal"
-                                                    name="PaymentMethod"
-                                                    onChange={e => setPaymentMethod(e.target.value)}
-                                                    checked={paymentMethod === "Paypal"}
-                                                />
-                                                <Form.Check
-                                                    type="radio"
-                                                    label="Cash On Delivery"
-                                                    value="Cash On Delivery"
-                                                    name="PaymentMethod"
-                                                    onChange={e => setPaymentMethod(e.target.value)}
-                                                    checked={paymentMethod === "Cash On Delivery"}
+                                                    label="UPI/Cards/Net Banking/Wallet"
+                                                    value="UPI/Cards/Net Banking/Wallet"
                                                 />
                                             </Col>
                                         </Form.Group>
@@ -626,7 +614,7 @@ export default function Checkout() {
 
                     <Row>
                         <Col style={{ textAlign: "center", marginTop: 30 }}>
-                            <Button variant="secondary" type="submit" size="md" style={{ backgroundColor: Colors.primaryViolet, fontWeight: "bold" }}> PLACE ORDER </Button>
+                            <Button variant="secondary" type="submit" size="md" style={{ backgroundColor: Colors.primaryViolet, fontWeight: "bold" }}> Place Order & Make Payment </Button>
                         </Col>
                     </Row>
                 </Form>
