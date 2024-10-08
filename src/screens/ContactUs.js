@@ -1,19 +1,21 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
 import { Colors } from '../common/ConstantStyles'
 import TopHeader from '../components/TopHeader'
 import { Form, Button } from 'react-bootstrap';
 import { contactUs } from '../components/api'
+import { Toast } from 'primereact/toast';
 
 export default function ContactUs() {
+
+    const toast = useRef(null);
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [mobile, setMobile] = useState("");
     const [subject, setSubject] = useState("");
     const [message, setMessage] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
 
     const checkContactUsData = async (event) => {
         event.preventDefault();
@@ -21,12 +23,10 @@ export default function ContactUs() {
         let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;  // eslint-disable-line
 
         if (mobile.length !== 10) {
-            setErrorMessage(<span style={{ color: "red" }}>Enter a valid 10 digit mobile number</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Enter a valid 10 digit mobile number" });
         }
         else if (reg.test(email) === false) {
-            setErrorMessage(<span style={{ color: "red" }}>Enter a valid email id</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Enter a valid email id" });
         }
         else {
             let toInput = {
@@ -46,14 +46,12 @@ export default function ContactUs() {
                         const error = (data && data.message) || response.status;
                         return Promise.reject(error);
                     } else {
-                        setErrorMessage(<span style={{ color: "red" }}>{data.message}</span>);
-                        setTimeout(() => setErrorMessage(""), 3000);
+                        toast.current.show({ life: 3000, severity: 'error', summary: data.message });
                         clearValues();
                     }
                 })
                 .catch(error => {
-                    setErrorMessage(<span style={{ color: "red" }}>{error}</span>);
-                    setTimeout(() => setErrorMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 });
         }
     }
@@ -101,8 +99,8 @@ export default function ContactUs() {
                         <div className="col-md-6 mt-2">
                             <div className="contact-wrap">
                                 <h3>Get In Touch</h3>
+                                <Toast ref={toast} position="top-center"  />
                                 <Form onSubmit={checkContactUsData}>
-                                    <div style={{ fontSize: 12, fontWeight: "bold", marginBottom: 10 }}>{errorMessage}</div>
                                     <div className="row">
 
                                         <div className="col-md-12">

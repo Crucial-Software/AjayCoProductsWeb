@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
 import { Form, Button, InputGroup } from 'react-bootstrap';
@@ -8,30 +8,29 @@ import { Link, useNavigate } from 'react-router-dom';
 import { EyeFill, EyeSlashFill } from "react-bootstrap-icons";
 import { Base64 } from 'js-base64';
 import { loginUser } from '../components/api';
+import { Toast } from 'primereact/toast';
 
 export default function Login() {
 
     const navigate = useNavigate();
+    const toast = useRef(null);
 
     //const [email, setEmail] = useState("");
     const [mobile, setMobile] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
 
     const checkLoginData = async (event) => {
         event.preventDefault();
 
-	if(mobile.length !== 10){
-		setErrorMessage(<span style={{ color: "red" }}>Enter a valid 10 digit mobile number</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
-	}
+        if (mobile.length !== 10) {
+            toast.current.show({ life: 3000, severity: 'error', summary: "Enter a valid 10 digit mobile number" });
+        }
         else if (password.length < 6) {
-            setErrorMessage(<span style={{ color: "red" }}>Password is too short</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Password is too short" });
         } else {
             const encyPassword = Base64.encode(password);
-            console.log("mobile: " + mobile + " password: " + password + " encyPassword: " + encyPassword)
+            //console.log("mobile: " + mobile + " password: " + password + " encyPassword: " + encyPassword)
 
             let toInput = {
                 //email: email
@@ -60,25 +59,22 @@ export default function Login() {
                         localStorage.setItem("userMobile", userInfo.mobile);
                         localStorage.setItem("userEmail", userInfo.email);
                         localStorage.setItem("userRole", userInfo.role);
-                        localStorage.setItem("customerId", customerInfo._id);
-
-                        if(userInfo.role === "admin"){
+                        if(data.data.customer_data){
+                            localStorage.setItem("customerId", customerInfo._id);
+                        }
+                        if (data.data.user_data.role === "admin") {
                             navigate('/dashboard');
-                        } else{
+                        } else {
                             navigate('/home');
                         }
-
                     }
+
+                    
                 })
                 .catch(error => {
-                    setErrorMessage(<span style={{ color: "red" }}>{error}</span>);
-                    setTimeout(() => setErrorMessage(""), 3000);
-
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 });
         }
-
-
-
     }
 
     return (
@@ -100,9 +96,8 @@ export default function Login() {
                         </div>
                         <div className="col-md-6 center-block ">
                             <div className="contact-wrap">
+                                <Toast ref={toast} position="top-center" />
                                 <Form onSubmit={checkLoginData}>
-
-                                    <div style={{ fontSize: 12, fontWeight: "bold", marginBottom: 10 }}>{errorMessage}</div>
 
                                     {/* <Form.Group className="mb-3" controlId="formGroupEmail">
                                         <Form.Label style={{ fontWeight: 'bold' }}>Email Id <span style={{ color: "red" }}>*</span></Form.Label>

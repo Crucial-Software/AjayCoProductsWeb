@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
 import { Form, Button, InputGroup } from 'react-bootstrap';
@@ -7,10 +7,12 @@ import { Colors } from '../common/ConstantStyles'
 import { EyeFill, EyeSlashFill } from "react-bootstrap-icons";
 import { Base64 } from 'js-base64';
 import { useNavigate } from "react-router-dom";
+import { Toast } from 'primereact/toast';
 
 export default function ForgotPassword() {
 
     const navigate = useNavigate();
+    const toast = useRef(null);
 
     const [mobile, setMobile] = useState("");
     const [otp, setOtp] = useState("");
@@ -18,8 +20,6 @@ export default function ForgotPassword() {
     const [showPassword, setShowPassword] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-    const [errorMessage, setErrorMessage] = useState("");
 
     const [mobileScreen, setMobileScreen] = useState(true);
     const [otpScreen, setOtpScreen] = useState(false);
@@ -33,8 +33,7 @@ export default function ForgotPassword() {
             setOtpScreen(true);
             setPasswordResetScreen(false);
         } else {
-            setErrorMessage(<span style={{ color: "red" }}>Enter a valid 10 digit mobile number</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Enter a valid 10 digit mobile number" });
         }
 
     }
@@ -43,8 +42,7 @@ export default function ForgotPassword() {
         event.preventDefault();
 
         if (otp.length < 4) {
-            setErrorMessage(<span style={{ color: "red" }}>Enter a valid 4 digit otp</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Enter a valid 4 digit otp" });
         } else {
             setMobileScreen(false);
             setOtpScreen(false);
@@ -56,14 +54,11 @@ export default function ForgotPassword() {
         event.preventDefault();
 
         if (password.length < 6) {
-            setErrorMessage(<span style={{ color: "red" }}>Password is too short</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Password is too short" });
         } else if (confirmPassword.length < 6) {
-            setErrorMessage(<span style={{ color: "red" }}>Confirm Password is too short</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Confirm Password is too short" });
         } else if (password !== confirmPassword) {
-            setErrorMessage(<span style={{ color: "red" }}>Password did not matched</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+           toast.current.show({ life: 3000, severity: 'error', summary: "Password did not matched" });
         }
         else {
             setMobileScreen(false);
@@ -90,15 +85,15 @@ export default function ForgotPassword() {
                             <h3>Forgot Password</h3>
                         </div>
                     </div>
+                    <Toast ref={toast} position="top-center" />
                     {mobileScreen ?
                         <div className="row">
                             <div className="col-md-3 center-block ">
                             </div>
                             <div className="col-md-6 center-block ">
                                 <div className="contact-wrap">
+                               
                                     <Form onSubmit={checkMobileData}>
-
-                                        <div style={{ fontSize: 12, fontWeight: "bold", marginBottom: 10 }}>{errorMessage}</div>
 
                                         <Form.Group className="mb-3" controlId="formGroupMobile">
                                             <Form.Label style={{ fontWeight: 'bold' }}>Mobile <span style={{ color: "red" }}>*</span></Form.Label>
@@ -137,8 +132,6 @@ export default function ForgotPassword() {
                                 <div className="contact-wrap">
                                     <Form onSubmit={checkOtpData}>
 
-                                        <div style={{ fontSize: 12, fontWeight: "bold", marginBottom: 10 }}>{errorMessage}</div>
-
                                         <Form.Group className="mb-3" controlId="formGroupOtp">
                                             <Form.Label style={{ fontWeight: 'bold' }}>Otp <span style={{ color: "red" }}>*</span></Form.Label>
                                             <Form.Control
@@ -175,8 +168,6 @@ export default function ForgotPassword() {
                             <div className="col-md-6 center-block ">
                                 <div className="contact-wrap">
                                     <Form onSubmit={checkPasswordResetData}>
-
-                                        <div style={{ fontSize: 12, fontWeight: "bold", marginBottom: 10 }}>{errorMessage}</div>
 
                                         <Form.Group className="mb-3" controlId="formGroupPassword">
                                             <Form.Label style={{ fontWeight: 'bold' }}>New Password <span style={{ color: "red" }}>*</span></Form.Label>

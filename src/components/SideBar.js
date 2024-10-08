@@ -132,6 +132,13 @@ const Sidebar = () => {
                                         </CDBSidebarMenuItem>
                                     </Link>
                                 </div>
+                                <div style={{ height: 40 }}>
+                                    <Link to="/manageproducts">
+                                        <CDBSidebarMenuItem icon="circle-small" iconSize="sm" textFontSize="14px" >
+                                            Products
+                                        </CDBSidebarMenuItem>
+                                    </Link>
+                                </div>
                             </CDBListGroup>
                             :
                             <div></div>

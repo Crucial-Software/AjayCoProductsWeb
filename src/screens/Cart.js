@@ -53,16 +53,16 @@ export default function Cart() {
     const incrementQuantity = (pItem) => {
         let item = {
             _id: pItem._id,
-            price: pItem.price,
+            //price: pItem.price,
             quantity: parseInt(pItem.quantity) + 6,
-            incrementQuantity: 6,
-            unitID: pItem.unitID._id,
-            variantID: pItem.variantID._id,
+            //incrementQuantity: 6,
+            //unitID: pItem.unitID._id,
+            //variantID: pItem.variantID._id,
             userID: loginid,
-            iGSTper: 18,
-            sGSTper: 9,
-            cGSTper: 9,
-            status: pItem.status
+            //iGSTper: 18,
+            //sGSTper: 9,
+            //cGSTper: 9,
+            //status: pItem.status
         }
         dispatch(incrementItemQuantity(item));
     }
@@ -70,16 +70,16 @@ export default function Cart() {
     const decrementQuantity = (pItem) => {
         let item = {
             _id: pItem._id,
-            price: pItem.price,
+            //price: pItem.price,
             quantity: parseInt(pItem.quantity) - 6,
-            incrementQuantity: 6,
-            unitID: pItem.unitID._id,
-            variantID: pItem.variantID._id,
+            //incrementQuantity: 6,
+            //unitID: pItem.unitID._id,
+            //variantID: pItem.variantID._id,
             userID: loginid,
-            iGSTper: 18,
-            sGSTper: 9,
-            cGSTper: 9,
-            status: pItem.status
+            //iGSTper: 18,
+            //sGSTper: 9,
+            //cGSTper: 9,
+            //status: pItem.status
         }
         if (parseInt(pItem.quantity) - 6 === 0) {
             setShow(true);
@@ -293,7 +293,7 @@ export default function Cart() {
                                                 onClick={() => { incrementQuantity(item) }} />
                                         </Col>
                                         <Col sm={2}>₹ {(item.price * item.quantity).toFixed(2)}</Col>
-                                        <Col sm={1} ><CloseButton onClick={() => { removefromCart(item) }} /></Col>
+                                        <Col sm={1}><CloseButton onClick={() => { removefromCart(item) }} /></Col>
                                     </Row>
                                 ))
                                 :
@@ -311,26 +311,25 @@ export default function Cart() {
                 <Row className="justify-content-center">
                     <Col lg={8} style={{ marginBottom: 20 }}>
                         <Row>
-                            <Col sm={4}>
+                            <Col md={5}>
                                 <Form className="d-flex">
                                     <Form.Control
-                                        type="search"
-                                        placeholder="Search"
+                                        type="text"
+                                        placeholder="Enter coupon code"
                                         className="me-2"
-                                        aria-label="Search"
+                                        aria-label="code"
                                     />
                                     <Button
                                         variant="outline-secondary"
                                         size="md"
                                         type="submit"
-                                        style={{ backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.primaryViolet, color: Colors.primaryViolet }}>
+                                        style={{ backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.primaryViolet, color: Colors.primaryViolet, marginTop: 2 }}>
                                         Apply
                                     </Button>
                                 </Form>
                             </Col>
 
                         </Row>
-
                     </Col>
                     <Col lg={4}>
                         <div className="cart-detail">

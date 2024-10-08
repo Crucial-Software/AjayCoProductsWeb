@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
 import { Form, Button, InputGroup } from 'react-bootstrap';
@@ -7,10 +7,12 @@ import { Colors } from '../common/ConstantStyles'
 import { EyeFill, EyeSlashFill } from "react-bootstrap-icons";
 import { Base64 } from 'js-base64';
 import { updatePassword } from '../components/api';
+import { Toast } from 'primereact/toast';
 
 export default function ChangePassword() {
 
     const mobile = localStorage.getItem("userMobile");
+    const toast = useRef(null);
 
     const [currentPassword, setCurrentPassword] = useState("");
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -18,26 +20,21 @@ export default function ChangePassword() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [updateMessage, setUpdateMessage] = useState("");
 
     const checkLoginData = async (event) => {
         event.preventDefault();
 
         if (currentPassword.length < 6) {
-            setUpdateMessage(<span style={{ color: "red" }}>Current Password is too short</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Current Password is too short" });
         }
         else if (newPassword.length < 6) {
-            setUpdateMessage(<span style={{ color: "red" }}>New password is too short</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "New password is too short" });
         }
         else if (confirmPassword.length < 6) {
-            setUpdateMessage(<span style={{ color: "red" }}>Confirm password is too short</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Confirm password is too short" });
         }
         else if (newPassword !== confirmPassword) {
-            setUpdateMessage(<span style={{ color: "red" }}>Password did not matched</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Password did not matched" });
         }
         else {
 
@@ -54,8 +51,7 @@ export default function ChangePassword() {
                     const isJson = response.headers.get('content-type')?.includes('application/json');
                     const data = isJson && await response.json();
                     if (response.ok) {
-                        setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
+                        toast.current.show({ life: 3000, severity: 'error', summary: data.message });
                         clearData();
                     } else {
                         const error = (data && data.message) || response.status;
@@ -63,8 +59,7 @@ export default function ChangePassword() {
                     }
                 })
                 .catch(error => {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                     clearData();
                 });
         }
@@ -99,9 +94,8 @@ export default function ChangePassword() {
                         </div>
                         <div className="col-md-6 center-block ">
                             <div className="contact-wrap">
+                            <Toast ref={toast} position="top-center" />
                                 <Form onSubmit={checkLoginData}>
-
-                                    <div style={{ fontSize: 12, fontWeight: "bold", marginBottom: 10 }}>{updateMessage}</div>
 
                                     <Form.Group className="mb-3" controlId="formGroupPassword">
                                         <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Current Password <span style={{ color: "red" }}>*</span></Form.Label>

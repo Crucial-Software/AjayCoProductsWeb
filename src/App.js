@@ -31,6 +31,8 @@ import ManageFeatureOptions from './screens/admin/ManageFeatureOptions';
 import ChangeAdminPassword from './screens/admin/ChangeAdminPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import Check from './screens/admin/Check';
+import ManageProducts from './screens/admin/ManageProducts';
+import CreateNewProduct from './screens/admin/CreateNewProduct';
 
 function App() {
 
@@ -45,13 +47,15 @@ function App() {
         <Route path='/categories' element={<Categories />} />
         <Route path='/productdetails' element={<ProductDetails />} />
         <Route path='/viewattachment' element={<ViewAttachment />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/register' element={<Register/>}  />
-        <Route path='/forgotpassword' element={<ForgotPassword />} />
-        <Route path="/changepassword" element={<PrivateRoute Component={ChangePassword} userRole={"customer, dealer"} />} />
         <Route path='/privacypolicy' element={<PrivacyPolicy />} />
         <Route path='/termsandconditions' element={<TermsAndConditions />} />
         <Route path='/refundandcancellationpolicy' element={<RefundAndCancellationPolicy />} />
+
+        <Route path='/login' element={<ProtectedRoute Component={Login} />} />
+        <Route path='/register' element={<ProtectedRoute Component={Register} />} />
+        <Route path='/forgotpassword' element={<ProtectedRoute Component={ForgotPassword} />} />
+
+        <Route path="/changepassword" element={<PrivateRoute Component={ChangePassword} userRole={"customer, dealer"} />} />
         <Route path="/cart" element={<PrivateRoute Component={Cart}  userRole={"customer, dealer"} />} />
         <Route path="/checkout" element={<PrivateRoute Component={Checkout} userRole={"customer, dealer"} />} />
         <Route path="/placeorder" element={<PrivateRoute Component={PlaceOrder} userRole={"customer, dealer"} />} />
@@ -68,6 +72,8 @@ function App() {
         <Route path="/manageunit" element={<PrivateRoute Component={ManageUnit} userRole={"admin"} />} />
         <Route path="/managefeaturemaster" element={<PrivateRoute Component={ManageFeatureMaster} userRole={"admin"} />} />
         <Route path="/managefeatureoptions" element={<PrivateRoute Component={ManageFeatureOptions} userRole={"admin"} />} />
+        <Route path="/manageproducts" element={<PrivateRoute Component={ManageProducts} userRole={"admin"} />} />
+        <Route path="/createnewproduct" element={<PrivateRoute Component={CreateNewProduct} userRole={"admin"} />} />
       </Routes>
     </BrowserRouter>
   );

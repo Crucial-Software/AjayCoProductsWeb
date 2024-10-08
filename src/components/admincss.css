@@ -42,18 +42,65 @@
 }
 
 
-.p-datatable{
+.p-datatable {
     padding: 10px;
     font-size: small;
 }
-.p-datatable .p-component .p-datatable-responsive-scroll .p-datatable-gridlines .p-datatable-striped{
+
+.p-datatable .p-component .p-datatable-responsive-scroll .p-datatable-gridlines .p-datatable-striped {
     background-color: #000000;
 }
 
-.p-datatable .p-datatable-thead > tr > th {
+.p-datatable .p-datatable-thead>tr>th {
     background-color: #dedede;
 }
 
-.p-paginator{
+.p-paginator {
     font-size: small;
+}
+
+
+.accordion-demo .p-accordion-header .p-accordion-header-link {
+    margin: 0;
+    font-size: small;
+    text-decoration: none;
+    color: #000000;
+    height: 10px;
+    background-color: #b3deef;
+}
+
+.accordion-demo .p-accordion p {
+    margin: 0;
+    font-size: small;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.1rem #b3deef;
+}
+
+.form-select {
+    font-size: small;
+    padding-left: 10px;
+    height: 35px;
+}
+
+.p-menu-list {
+    padding-left: 0px;
+}
+
+.p-menuitem-content {
+    text-align: left;
+    font-size: small;
+    font-weight: bold;
+}
+
+.p-menuitem-link {
+    text-decoration: none;
+}
+
+.menuDiv {
+    border-width: 0.5px;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: #E5E7EB;
 }

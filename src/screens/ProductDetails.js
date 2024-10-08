@@ -125,18 +125,19 @@ export default function ProductDetails() {
             // let tAmount = parseFloat(minimumQuantity * selectedVariantDetails.offerPrice);
             //item = { ...product, quantity: minimumQuantity, size: size, totalPrice: tAmount };
             let item = {
-                productName: productDetails.productName,
-                SKU: selectedVariantDetails.SKU,
-                selectedVariant: selectedVariant,
-                price: selectedVariantDetails.offerPrice,
+                //productName: productDetails.productName,
+                //SKU: selectedVariantDetails.SKU,
+                //selectedVariant: selectedVariant,
+                //price: selectedVariantDetails.offerPrice,
                 quantity: minimumQuantity,
-                incrementQuantity: incrementQuantityValue,
+                //incrementQuantity: incrementQuantityValue,
                 unitID: productDetails.unitID._id,
                 variantID: selectedVariantDetails._id,
                 userID: loginid,
-                iGSTper: 18,
-                sGSTper: 9,
-                cGSTper: 9
+                //iGSTper: 18,
+                //sGSTper: 9,
+                //cGSTper: 9
+                //remove -> productName, SKU, selectedVariant, price, incrementQuantity, igst, sgst, cgst
             }
             dispatch(addItemToCart(item));
             // setShowAlert(true);

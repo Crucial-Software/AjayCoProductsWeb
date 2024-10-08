@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
 import { Form, Button, InputGroup } from 'react-bootstrap';
@@ -8,10 +8,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { EyeFill, EyeSlashFill } from "react-bootstrap-icons";
 import { Base64 } from 'js-base64';
 import { registerUser } from '../components/api';
+import { Toast } from 'primereact/toast';
 
 export default function Register() {
 
     const navigate = useNavigate();
+    const toast = useRef(null);
 
     const [customerType, setCustomerType] = useState("Individual");
     const [email, setEmail] = useState("");
@@ -23,7 +25,6 @@ export default function Register() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [gstNumber, setGstNumber] = useState(null);
     const [contactPerson, setContactPerson] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
 
     const checkRegisterData = async (event) => {
         event.preventDefault();
@@ -32,28 +33,22 @@ export default function Register() {
         let gstReg = /^([0-9]){2}([A-Za-z]){5}([0-9]){4}([A-Za-z]){1}([0-9]{1})([A-Za-z]){2}?$/;  // eslint-disable-line
 
         if (mobile.length !== 10) {
-            setErrorMessage(<span style={{ color: "red" }}>Enter a valid 10 digit mobile number</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Enter a valid 10 digit mobile number" });
         }
         else if (reg.test(email) === false) {
-            setErrorMessage(<span style={{ color: "red" }}>Enter a valid email id</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Enter a valid email id" });
         }
         else if (password.length < 6) {
-            setErrorMessage(<span style={{ color: "red" }}>Password is too short</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Password is too short" });
         }
         else if (confirmPassword.length < 6) {
-            setErrorMessage(<span style={{ color: "red" }}>Confirm Password is too short</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Confirm Password is too short" });
         }
         else if (password !== confirmPassword) {
-            setErrorMessage(<span style={{ color: "red" }}>Password did not matched</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Password did not matched" });
         }
         else if (gstNumber && gstReg.test(gstNumber)) {
-            setErrorMessage(<span style={{ color: "red" }}>Enter a valid gst number</span>);
-            setTimeout(() => setErrorMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Enter a valid gst number" });
         }
         else {
 
@@ -88,9 +83,7 @@ export default function Register() {
                     }
                 })
                 .catch(error => {
-                    setErrorMessage(<span style={{ color: "red" }}>{error}</span>);
-                    setTimeout(() => setErrorMessage(""), 3000);
-
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 });
         }
     }
@@ -114,17 +107,16 @@ export default function Register() {
                         </div>
                         <div className="col-md-6 center-block ">
                             <div className="contact-wrap">
+                                <Toast ref={toast} position="top-center" />
                                 <Form onSubmit={checkRegisterData}>
 
-                                    <div style={{ fontSize: 12, fontWeight: "bold", marginBottom: 10 }}>{errorMessage}</div>
-
                                     <Form.Group className="mb-3" controlId="formGroupEmail">
-                                        <Form.Label style={{ fontWeight: 'bold', marginRight: 20, color: Colors.darkGrey, fontSize: 14,}}>Customer Type <span style={{ color: "red" }}>*</span></Form.Label>
+                                        <Form.Label style={{ fontWeight: 'bold', marginRight: 20, color: Colors.darkGrey, fontSize: 14, }}>Customer Type <span style={{ color: "red" }}>*</span></Form.Label>
                                         <Form.Check
                                             inline
                                             type="radio"
                                             label="Individual"
-                                            style={{color: Colors.darkGrey, fontSize: 14, }}
+                                            style={{ color: Colors.darkGrey, fontSize: 14, }}
                                             name="Items"
                                             value="Individual"
                                             onChange={e => setCustomerType(e.target.value)}
@@ -135,7 +127,7 @@ export default function Register() {
                                             inline
                                             type="radio"
                                             label="Business"
-                                            style={{color: Colors.darkGrey, fontSize: 14 }}
+                                            style={{ color: Colors.darkGrey, fontSize: 14 }}
                                             name="Items"
                                             value="Business"
                                             onChange={e => setCustomerType(e.target.value)}
@@ -223,7 +215,7 @@ export default function Register() {
                                                 />
                                             </Form.Group>
                                             <Form.Group className="mb-3" controlId="formGroupEmail">
-                                                <Form.Label style={{ fontWeight: 'bold' , color: Colors.darkGrey, fontSize: 14 }}>GST Number</Form.Label>
+                                                <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>GST Number</Form.Label>
                                                 <Form.Control
                                                     size="lg"
                                                     placeholder="Enter your gst number"

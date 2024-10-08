@@ -279,7 +279,6 @@ export default function Checkout() {
         }
     }
 
-
     return (
         <>
 
@@ -288,7 +287,7 @@ export default function Checkout() {
 
             <Container>
 
-                <Toast ref={toast} />
+                <Toast ref={toast} position="top-center" />
 
                 <Row style={{ marginTop: 30, marginBottom: 30 }}>
                     <Col>
