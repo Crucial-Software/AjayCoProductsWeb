@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import TopHeader from '../components/TopHeader'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
-import { Form, Button, Row, Col, Carousel, Image, Alert } from 'react-bootstrap'
+import { Form, Button, Row, Col, Alert } from 'react-bootstrap'
 import { Colors } from '../common/ConstantStyles'
 import { useLocation, useNavigate } from 'react-router-dom'
 import './Screens.css';
@@ -11,6 +11,8 @@ import { addItemToCart } from '../redux/actions/cartAction'
 import { getProductById } from '../components/api'
 //import 'bootstrap/dist/css/bootstrap.min.css';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { API_BASE } from '../components/urlLink';
+import { Galleria } from 'primereact/galleria';
 
 export default function ProductDetails() {
 
@@ -43,10 +45,6 @@ export default function ProductDetails() {
         }
     }
 
-    const getItemInfo = (pid) => {
-        setItemImages(pid);
-    }
-
     useEffect(() => {
         window.scrollTo({
             top: 0,
@@ -54,8 +52,9 @@ export default function ProductDetails() {
             behavior: "smooth"
         });
 
-        getItemInfo(productId);
-        getAllProductInfo(productId);
+        if (productId) {
+            getAllProductInfo(productId);
+        }
 
     }, [productId]);
 
@@ -72,8 +71,11 @@ export default function ProductDetails() {
                 const isJson = response.headers.get('content-type')?.includes('application/json');
                 const data = isJson && await response.json();
                 setLoading(false);
-                if (data.data) {
-                    setProductDetails(data.data);
+                if (data.data[0]) {
+                    setProductDetails(data.data[0]);
+                    if (data.data[0].productImages) {
+                        setItemImages(data.data[0].productImages);
+                    }
                 }
             })
             .catch(error => {
@@ -86,7 +88,7 @@ export default function ProductDetails() {
     const handleVariantSelect = (variantId) => {
         if (variantId !== "- Select Size -") {
             setSelectedVariant(variantId);
-            var selVariantDetails = productDetails.variants.filter(function (v, i) {
+            var selVariantDetails = productDetails.productVariants.filter(function (v, i) {
                 if (v._id === variantId) {
                     return true;
                 } else {
@@ -147,6 +149,23 @@ export default function ProductDetails() {
         }
     }
 
+    const itemTemplate = (item) => {
+        return <img
+            src={`${API_BASE}/images/products/${item.productImageLink}`}
+            onError={(e) => e.target.src = 'https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png'}
+            alt={item.productImageLink}
+            // onClick={() => { navigate('/viewattachment', { state: { file: itemImages, } }); }}
+            style={{ height: 450 }} />
+    }
+
+    const thumbnailTemplate = (item) => {
+        return <img
+            src={`${API_BASE}/images/products/${item.productImageLink}`}
+            onError={(e) => e.target.src = 'https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png'}
+            alt={item.productImageLink}
+            style={{ height: 75 }} />
+    }
+
     return (
         <div>
 
@@ -167,26 +186,24 @@ export default function ProductDetails() {
                         <>
                             <Row>
                                 <Col className="justify-content-md-center" lg>
-                                    {/* <Carousel
-                                interval={2000}
-                                nextLabel={false}
-                                prevLabel={false}
-                                indicators={true}
-                                fade={true}
-                                prevIcon={<i className="icon-chevron-left" style={{ fontSize: 40, color: Colors.black }} />}
-                                nextIcon={<i className="icon-chevron-right" style={{ fontSize: 40, color: Colors.black }} />}
-                            >
-                                {itemImages.map((item, index) => (
-                                    <Carousel.Item style={{ textAlign: "center" }} key={item.id}>
-                                        <Image
-                                            src={item.image}
-                                            alt='gradient'
-                                            className="d-block w-100"
-                                            onClick={() => { navigate('/viewattachment', { state: { file: itemImages, } }); }}
-                                            fluid />
-                                    </Carousel.Item>
-                                ))}
-                            </Carousel> */}
+                                    {itemImages.length !== 0 ?
+                                        <Galleria
+                                            value={itemImages}
+                                            numVisible={5}
+                                            item={itemTemplate}
+                                            thumbnail={thumbnailTemplate}
+                                            circular
+                                            autoPlay
+                                            showItemNavigators
+                                            transitionInterval={2000}
+                                        />
+                                        :
+                                        <Row>
+                                            <p style={{ padding: 20, textAlign: "center", marginBottom: 50, color: Colors.darkGrey, }}>No Images Found</p>
+                                        </Row>
+
+                                    }
+
                                 </Col>
                                 <Col lg>
 
@@ -282,12 +299,18 @@ export default function ProductDetails() {
                                             <Form.Control as="select" className="rounded-0 shadow" style={{ fontSize: 12, borderRadius: 4 }} value={selectedVariant} onChange={e => { handleVariantSelect(e.target.value); }} >
                                                 <option value={null}>- Select Size -</option>
                                                 {productDetails.productVariants ?
-                                                    productDetails.productVariants.map((data, key) => <option key={data} value={data}>{data}</option>)
+                                                    productDetails.productVariants.map((data, key) =>
+                                                        <option
+                                                            key={data._id}
+                                                            value={data._id}
+                                                        >
+                                                            {data.variantOptions[0].featureOptionID.featureOptionName}
+                                                        </option>)
                                                     : null}
                                             </Form.Control>
                                         </Col>
                                     </Row>
-
+                                    
                                     {selectedVariant !== "- Select Size -" ?
                                         <Row style={{ marginTop: 20 }}>
                                             <Col>

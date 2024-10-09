@@ -73,11 +73,15 @@
     margin: 0;
     font-size: small;
 }
-
+.form-control {
+    border-radius: 5;
+    border-color:#DEE2E6 !important;
+    border-width: 5px;
+  }
 .form-control:focus {
     box-shadow: 0 0 0 0.1rem #b3deef;
+    border: 5px solid red;
 }
-
 .form-select {
     font-size: small;
     padding-left: 10px;
@@ -104,3 +108,34 @@
     border-radius: 5px;
     border-color: #E5E7EB;
 }
+
+/* Image Upload */
+.p-fileupload-buttonbar .p-button {
+    background-color: #5255D3;
+    border: 0px solid #5255D3;
+    height: 35px;
+    font-size: small;
+    font-weight: bold;
+}
+
+.p-fileupload-buttonbar {
+    padding: 10px;
+}
+
+/* Multiselect List Dropdown 
+.p-multiselect {
+    height: 33px;
+    align-items: center;
+}
+.p-component {
+    font-size: small;
+    color: #000000;
+}
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item {
+    padding: 5px;
+}
+.p-checkbox .p-component{
+    width: 20px;
+    height: 20px;
+}
+    */

@@ -16,6 +16,11 @@ export const fetchProducts = () => dispatch => {
                 }
             })
             .catch(error => {
+                dispatch({
+                    type: Constants.FETCH_ALL_PRODUCTS,
+                    payload: "",
+                    loading: false
+                });
                 console.log("Products Error: " + error)
             });;
         return response;

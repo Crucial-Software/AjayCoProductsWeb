@@ -45,8 +45,7 @@ export default function AllProducts({ show, id }) {
                                 className="m-2"
                                 onClick={() => { navigate('/productdetails', { state: { productId: item._id, } }); }}
                             >
-                                {/* <Card.Img variant="top" src={item.uri[0].image} style={{ alignSelf: "center", objectFit: "cover", height: 250,  }} /> */}
-                                <Card.Img variant="top" src={`${API_BASE}/images/category/category_1727932029092.jpg`} style={{ alignSelf: "center", objectFit: "cover", height: 250 }} />
+                                <Card.Img variant="top" src={`${API_BASE}/images/products/${item.productImages.length !== 0 ? item.productImages[0].productImageLink : null}`} style={{ alignSelf: "center", objectFit: "cover", height: 250 }} />
                                 <Card.Body>
                                     <Card.Text style={{ color: Colors.darkGrey, fontSize: 14 }}>{item.productName}</Card.Text>
                                 </Card.Body>
@@ -64,12 +63,6 @@ export default function AllProducts({ show, id }) {
                             </Row>
                         }
 
-                        {products.length === 0 ?
-                            <Row>
-                                <p style={{ padding: 20, textAlign: "center", marginBottom: 50, color: Colors.darkGrey, }}>No products found</p>
-                            </Row>
-                            : null
-                        }
                     </>
                 }
             </Row>
