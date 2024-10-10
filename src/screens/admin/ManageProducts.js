@@ -50,10 +50,6 @@ const ManageProducts = () => {
 
     }
 
-    const handleEditClick = () => {
-
-    }
-
     const handleDeleteClick = () => {
 
     }
@@ -74,8 +70,8 @@ const ManageProducts = () => {
                 {
                     srno: i + 1,
                     image: <div>
-                        {data.categoryImage ?
-                            <Image src={`${API_BASE}/images/products/${data.productImages}`} height={70} />
+                        {data.productImages.length !== 0 ?
+                            <Image src={`${API_BASE}/images/products/${data.productImages[0].productImageLink}`} height={70} />
                             :   
                             <div></div>
                         }
@@ -83,7 +79,7 @@ const ManageProducts = () => {
                     name: data.productName,
                     category: data.catID.categoryName,
                     status: data.status,
-                    edit: <span onClick={(e) => handleEditClick(e, data._id)}>
+                    edit: <span onClick={(e) => {navigate("/createnewproduct", { state: { productId: data._id, } })}}>
                         <Button variant="primary" type="submit" style={{ fontSize: FontSize.smallMedium }} size="sm">
                             Edit
                         </Button>
@@ -117,7 +113,7 @@ const ManageProducts = () => {
 
                     <Button
                         variant="primary"
-                        onClick={() => { navigate("/createnewproduct") }}
+                        onClick={() => { navigate("/createnewproduct", { state: { productId: null, } }) }}
                         style={{ marginBottom: 20, fontSize: FontSize.smallMedium, backgroundColor: Colors.darkBlue, borderColor: Colors.darkBlue }}>
                         + Create New Product
                     </Button>

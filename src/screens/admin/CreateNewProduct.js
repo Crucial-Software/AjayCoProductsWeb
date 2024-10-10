@@ -8,12 +8,17 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Colors, FontSize } from "../../common/ConstantStyles";
 import { Editor } from 'primereact/editor';
 import { Menu } from 'primereact/menu';
-import { Form, Row, Col, Button, Card } from "react-bootstrap";
+import { Form, Row, Col, Button, CloseButton } from "react-bootstrap";
 import { Asterisk } from "react-bootstrap-icons";
-import { getAllCategories, getAllFeatureOptions, getAllFeatures, getAllUnits } from "../../components/api";
+import { createProductImage, getAllCategories, getAllFeatureOptions, getAllFeatures, getAllUnits, getProductById } from "../../components/api";
 import { Toast } from 'primereact/toast';
 import { FileUpload } from 'primereact/fileupload';
 import { MultiSelect } from 'primereact/multiselect';
+import { Divider } from 'primereact/divider';
+import { useLocation } from 'react-router-dom';
+import { API_BASE } from "../../components/urlLink";
+import { Image } from 'primereact/image';
+import { Tooltip } from 'primereact/tooltip';
 
 const CreateNewProduct = () => {
 
@@ -24,8 +29,18 @@ const CreateNewProduct = () => {
     //     { label: 'Attributes', icon: 'fa fa-file-text', selected: "Attributes", command: () => { setSelectedMenuItem("Attributes"); } },
     //     { label: 'Variants', icon: 'fa fa-arrows-alt', selected: "Variants", command: () => { setSelectedMenuItem("Variants"); } }
     // ];
+    const userLoginId = localStorage.getItem("userLoginId");
 
     const toast = useRef(null);
+
+    let location = useLocation();
+    const { productId } = location?.state;
+    const [productDetails, setProductDetails] = useState([]);
+    const [itemImages, setItemImages] = useState([]);
+
+    const [imagefile, setImageFile] = useState(null);
+    const aRef = useRef(null);
+
     const [productName, setProductName] = useState("");
     const [productDescription, setProductDescription] = useState("");
     const [units, setUnits] = useState([]);
@@ -39,25 +54,24 @@ const CreateNewProduct = () => {
     const [sGSTper, setSGSTper] = useState(null);
     const [iGSTper, setIGSTper] = useState(null);
     // const [selectedMenuItem, setSelectedMenuItem] = useState("");
-    const [SKU, setSKU] = useState("");
-    const [currentStock, setCurrentStock] = useState("");
-    const [regularPrice, setRegularPrice] = useState("");
-    const [offerPrice, setOfferPrice] = useState("");
-    const [quantityIncreament, setQuantityIncreament] = useState(null);
-    const [minimumQuantity, setMinimumQuantity] = useState(null);
-    const [weight, setWeight] = useState("");
-    const [dimension, setDimension] = useState("");
+    const [inputFields, setInputFields] = useState([]);
+
     const [features, setFeatures] = useState([]);
     const [featureId, setFeatureId] = useState(null);
+    const [featureValue, setFeatureValue] = useState("");
     const [featureOptions, setFeaturesOptions] = useState([]);
-    const [selectedFeatureOptions, setSelectedFeatureOptions] = useState("");
+    const [selectedFeatureOptionId, setSelectedFeatureOptionId] = useState(null);
+    const [selectedFeatureOptionValue, setSelectedFeatureOptionValue] = useState("");
 
     useEffect(() => {
         fetchAllUnits();
         fetchAllCategories();
         fetchAllFeatures();
         fetchAllFeatureOptions();
-    }, [])
+        if (productId !== null) {
+            fetchProductDetails(productId);
+        }
+    }, [productId])
 
     const fetchAllUnits = async () => {
         await getAllUnits()
@@ -143,18 +157,123 @@ const CreateNewProduct = () => {
 
     }
 
-    const onUpload = () => {
-        toast.current.show({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
+    const fetchProductDetails = async (pId) => {
+
+        let toInput = {
+            _id: pId,
+        };
+
+        await getProductById(toInput)
+            .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson && await response.json();
+                if (data.data[0]) {
+                    setProductDetails(data.data[0]);
+                    let pDetails = data.data[0];
+
+                    setProductName(pDetails.productName);
+                    setUnitId(pDetails.unitID._id);
+                    setCategoryId(pDetails.catID._id);
+                    setHsnCode(pDetails.hsnCode);
+                    setCGSTper(pDetails.cGSTper);
+                    setSGSTper(pDetails.sGSTper);
+                    setIGSTper(pDetails.iGSTper);
+                    setStatus(pDetails.status);
+
+                    if (data.data[0].productImages) {
+                        setItemImages(data.data[0].productImages);
+                        console.log("ItemImages: " + JSON.stringify(data.data[0].productImages));
+                    }
+                }
+            })
+            .catch(error => {
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
+            });
     }
+
+
 
     const handleEnterDetails = () => {
         if (featureId === null || featureId === 'Select' || featureId === "") {
             toast.current.show({ life: 3000, severity: 'error', summary: "Please select feature" });
-        } else if (selectedFeatureOptions === null || selectedFeatureOptions === 'Select' || selectedFeatureOptions === "") {
+        } else if (selectedFeatureOptionId === null || selectedFeatureOptionId === 'Select' || selectedFeatureOptionId === "") {
             toast.current.show({ life: 3000, severity: 'error', summary: "Please select feature option" });
-        } else {
-            console.log("feature Id: " + featureId + " selected feature option: " + selectedFeatureOptions);
+        } else if (inputFields.length >= 1 && (inputFields[0].SKU === "" || inputFields[0].currentStock === "" || inputFields[0].regularPrice === null || inputFields[0].offerPrice === null || inputFields[0].quantityIncreament === null
+            || inputFields[0].minimumQuantity === null || inputFields[0].weight === "" || inputFields[0].dimension === ""
+        )) {
+            toast.current.show({ life: 3000, severity: 'error', summary: "Please enter all variant details" });
         }
+        else {
+            //console.log("feature Id: " + featureId + " selected feature option: " + selectedFeatureOptionId);
+            //console.log("Input: " + JSON.stringify(inputFields));
+            addInputField();
+        }
+    }
+
+    const addInputField = () => {
+        setInputFields([{
+            SKU: '',
+            currentStock: '',
+            regularPrice: null,
+            offerPrice: null,
+            quantityIncreament: null,
+            minimumQuantity: null,
+            weight: '',
+            dimension: '',
+            featureId: featureId,
+            featureValue: featureValue,
+            selectedFeatureOptionId: selectedFeatureOptionId,
+            selectedFeatureOptionValue: selectedFeatureOptionValue
+        }, ...inputFields]);
+
+        setFeatureId(null);
+        setFeatureValue("");
+        setSelectedFeatureOptionId(null);
+        setSelectedFeatureOptionValue("");
+
+    }
+    const removeInputFields = (index) => {
+        const rows = [...inputFields];
+        rows.splice(index, 1);
+        setInputFields(rows);
+    }
+    const handleChange = (index, evnt) => {
+        const { name, value } = evnt.target;
+        const list = [...inputFields];
+        list[index][name] = value;
+        setInputFields(list);
+    }
+
+    const handleImageUpload = async () => {
+        const formData = new FormData();
+
+        formData.append('productImageLink', imagefile)
+        formData.append('productId', productId);
+        formData.append('status', status);
+        formData.append('createdByid', userLoginId);
+
+        await createProductImage(formData)
+            .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson && await response.json();
+                if (!response.ok) {
+                    const error = (data && data.message) || response.status;
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
+                } else {
+                    toast.current.show({ life: 3000, severity: 'success', summary: data.message });
+                    setImageFile(null);
+                    aRef.current.value = null;
+                }
+                if (response.status === 422) {
+                    toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
+                }
+            })
+            .catch(error => {
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
+                setImageFile(null);
+                aRef.current.value = null;
+            });
+
     }
 
     return (
@@ -322,8 +441,8 @@ const CreateNewProduct = () => {
 
                             </AccordionTab>
                             <AccordionTab header="Product Variant Details">
-
-                                {/* <div>
+                                {/*                             
+                                <div>
                                     <Row style={{ fontSize: FontSize.smallMedium }}>
                                         <Col md="auto">
                                             <Menu model={items} />
@@ -465,9 +584,9 @@ const CreateNewProduct = () => {
                                                                             </Form.Label>
                                                                             <Row style={{paddingLeft: 10, paddingRight: 10}}>
                                                                             <MultiSelect
-                                                                                value={selectedFeatureOptions}
+                                                                                value={selectedFeatureOptionId}
                                                                                 options={featureOptions}
-                                                                                onChange={(e) => setSelectedFeatureOptions(e.value)}
+                                                                                onChange={(e) => setSelectedFeatureOptionId(e.value)}
                                                                                 optionLabel="featureOptionName"
                                                                                 placeholder="- Select Feature Option -"
                                                                                 maxSelectedLabels={10} />
@@ -480,7 +599,7 @@ const CreateNewProduct = () => {
                                                                             size="sm"
                                                                             variant="outline-primary"
                                                                             type="submit"
-                                                                            onClick={() => { console.log(selectedFeatureOptions);}}
+                                                                            onClick={() => { console.log(selectedFeatureOptionId);}}
                                                                             style={{ marginTop: 30, backgroundColor: Colors.darkBlue, borderColor: Colors.darkBlue, }}
                                                                         >
                                                                             Save Attributes
@@ -499,7 +618,7 @@ const CreateNewProduct = () => {
                                         </Col>
                                     </Row>
 
-                                </div>  */}
+                                </div>   */}
 
                                 <div>
                                     <Row style={{ fontSize: FontSize.smallMedium }}>
@@ -512,7 +631,13 @@ const CreateNewProduct = () => {
                                                 <Form.Select
                                                     aria-label="Default select example"
                                                     value={featureId || ""}
-                                                    onChange={e => { setFeatureId(e.target.value); }}>
+                                                    onChange={e => {
+                                                        setFeatureId(e.target.value);
+                                                        var value = features.filter(function (item) {
+                                                            return item._id === e.target.value
+                                                        })
+                                                        setFeatureValue(value[0].featureName);
+                                                    }}>
                                                     <option value="Select">- Select -</option>
                                                     {features.map((data, key) => <option key={data._id} value={data._id} >{data.featureName}</option>)}
                                                 </Form.Select>
@@ -526,9 +651,15 @@ const CreateNewProduct = () => {
                                                 </Form.Label>
                                                 <Form.Select
                                                     aria-label="Default select example"
-                                                    value={selectedFeatureOptions || ""}
-                                                    onChange={e => { setSelectedFeatureOptions(e.target.value); }}>
-                                                    <option value="Select">- Select -</option>
+                                                    value={selectedFeatureOptionId || ""}
+                                                    onChange={e => {
+                                                        setSelectedFeatureOptionId(e.target.value);
+                                                        var value = featureOptions.filter(function (item) {
+                                                            return item._id === e.target.value
+                                                        })
+                                                        setSelectedFeatureOptionValue(value[0].featureOptionName);
+                                                    }}>
+                                                    <option value="Select">- Select -</option>e
                                                     {featureOptions.map((data, key) => <option key={data._id} value={data._id} >{data.featureOptionName}</option>)}
                                                 </Form.Select>
                                             </Form.Group>
@@ -544,141 +675,255 @@ const CreateNewProduct = () => {
                                                 Enter Details
                                             </Button>
                                         </Col>
-
+                                        {(inputFields.length >= 1) ?
+                                            <Col md={2}>
+                                                <Button
+                                                    size="sm"
+                                                    variant="primary"
+                                                    type="submit"
+                                                    onClick={() => { console.log("Input Data: " + JSON.stringify(inputFields)) }}
+                                                    style={{ marginTop: 30, backgroundColor: Colors.darkBlue, borderColor: Colors.darkBlue, }}
+                                                >
+                                                    Save All Variant Data
+                                                </Button>
+                                            </Col>
+                                            : ''}
                                     </Row>
                                     <Row>
-                                        <Card style={{ padding: 0 }}>
-                                            <Card.Header as="h6" style={{ backgroundColor: Colors.grey }}>Size: {selectedFeatureOptions}</Card.Header>
-                                            <Card.Body>
-                                                <Row style={{ fontSize: FontSize.smallMedium }}>
-                                                    <Col md>
-                                                        <Form.Group className="mb-3" controlId="formRegularPrice">
-                                                            <Form.Label style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
-                                                                Regular Price
-                                                                <Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
-                                                            </Form.Label>
-                                                            <Form.Control
-                                                                type="tel"
-                                                                value={regularPrice || ""}
-                                                                onChange={e => { setRegularPrice(e.target.value.replace(/\D/g, "")) }}
-                                                                required
-                                                            />
-                                                        </Form.Group>
-                                                    </Col>
-                                                    <Col md>
-                                                        <Form.Group className="mb-3" controlId="formOfferPrice">
-                                                            <Form.Label style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
-                                                                Offer Price
-                                                                <Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
-                                                            </Form.Label>
-                                                            <Form.Control
-                                                                type="tel"
-                                                                value={offerPrice || ""}
-                                                                onChange={e => { setOfferPrice(e.target.value.replace(/\D/g, "")) }}
-                                                                required
-                                                            />
-                                                        </Form.Group>
-                                                    </Col>
-                                                    <Col md>
-                                                        <Form.Group className="mb-3" controlId="formQuantityIncrement">
-                                                            <Form.Label style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
-                                                                Quantity Increment
-                                                                <Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
-                                                            </Form.Label>
-                                                            <Form.Control
-                                                                type="tel"
-                                                                value={quantityIncreament || ""}
-                                                                onChange={e => { setQuantityIncreament(e.target.value.replace(/\D/g, "")) }}
-                                                                required
-                                                            />
-                                                        </Form.Group>
-                                                    </Col>
-                                                    <Col md>
-                                                        <Form.Group className="mb-3" controlId="formQuantityIncrement">
-                                                            <Form.Label style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
-                                                                Quantity Increment
-                                                                <Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
-                                                            </Form.Label>
-                                                            <Form.Control
-                                                                type="tel"
-                                                                value={quantityIncreament || ""}
-                                                                onChange={e => { setQuantityIncreament(e.target.value.replace(/\D/g, "")) }}
-                                                                required
-                                                            />
-                                                        </Form.Group>
-                                                    </Col>
-                                                </Row>
-                                                <Row style={{ fontSize: FontSize.smallMedium }}>
-                                                    <Col md>
-                                                        <Form.Group className="mb-3" controlId="formProductName">
-                                                            <Form.Label
-                                                                style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
-                                                                SKU Name<Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
-                                                            </Form.Label>
-                                                            <Form.Control
-                                                                value={SKU || ""}
-                                                                onChange={e => { setSKU(e.target.value) }}
-                                                                required
-                                                            />
-                                                        </Form.Group>
-                                                    </Col>
-                                                    <Col md>
-                                                        <Form.Group as={Row} className="mb-3" controlId="formSku">
-                                                            <Form.Label
-                                                                style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
-                                                                Current Stock<Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
-                                                            </Form.Label>
-                                                            <Form.Control
-                                                                value={currentStock || ""}
-                                                                onChange={e => { setCurrentStock(e.target.value) }}
-                                                                required
-                                                            />
-                                                        </Form.Group>
-                                                    </Col>
-                                                    <Col md>
-                                                        <Form.Group as={Row} className="mb-3" controlId="formSku">
-                                                            <Form.Label
-                                                                style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
-                                                                Weight<Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
-                                                            </Form.Label>
-                                                            <Form.Control
-                                                                value={weight || ""}
-                                                                onChange={e => { setWeight(e.target.value) }}
-                                                                required
-                                                            />
-                                                        </Form.Group>
-                                                    </Col>
-                                                    <Col md>
-                                                        <Form.Group as={Row} className="mb-3" controlId="formSku">
-                                                            <Form.Label
-                                                                style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
-                                                                Dimensions<Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
-                                                            </Form.Label>
-                                                            <Form.Control
-                                                                value={dimension || ""}
-                                                                onChange={e => { setDimension(e.target.value) }}
-                                                                required
-                                                            />
-                                                        </Form.Group>
-                                                    </Col>
+                                        {
+                                            inputFields.map((data, index) => {
+                                                const { featureValue, selectedFeatureOptionValue, SKU, currentStock, regularPrice, offerPrice, quantityIncreament, minimumQuantity, weight, dimension } = data;
+                                                return (
+                                                    <div key={index} className="border rounded" style={{ marginTop: 10, padding: 10, backgroundColor: "#F0F0F0" }}>
+                                                        <Row>
+                                                            <Row style={{ fontSize: FontSize.smallMedium, marginBottom: 10, }}>
+                                                                <Col md>
+                                                                    <span style={{ fontSize: FontSize.smallMedium, fontWeight: "bold", textTransform: "capitalize" }}>{featureValue}: {selectedFeatureOptionValue}</span>
+                                                                </Col>
+                                                            </Row>
+                                                            <Divider />
+                                                            <Row style={{ fontSize: FontSize.smallMedium }}>
+                                                                <Col md>
+                                                                    <Form.Group className="mb-3" controlId="formRegularPrice">
+                                                                        <Form.Label style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
+                                                                            Regular Price
+                                                                            <Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
+                                                                        </Form.Label>
+                                                                        <Form.Control
+                                                                            type="tel"
+                                                                            name="regularPrice"
+                                                                            value={regularPrice || ""}
+                                                                            onChange={(evnt) => handleChange(index, evnt)}
+                                                                            required
+                                                                        />
+                                                                    </Form.Group>
+                                                                </Col>
+                                                                <Col md>
+                                                                    <Form.Group className="mb-3" controlId="formOfferPrice">
+                                                                        <Form.Label style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
+                                                                            Offer Price
+                                                                            <Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
+                                                                        </Form.Label>
+                                                                        <Form.Control
+                                                                            type="tel"
+                                                                            name="offerPrice"
+                                                                            value={offerPrice || ""}
+                                                                            onChange={(evnt) => handleChange(index, evnt)}
+                                                                            required
+                                                                        />
+                                                                    </Form.Group>
+                                                                </Col>
+                                                                <Col md>
+                                                                    <Form.Group className="mb-3" controlId="formQuantityIncrement">
+                                                                        <Form.Label style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
+                                                                            Quantity Increment
+                                                                            <Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
+                                                                        </Form.Label>
+                                                                        <Form.Control
+                                                                            type="tel"
+                                                                            name="quantityIncreament"
+                                                                            value={quantityIncreament || ""}
+                                                                            onChange={(evnt) => handleChange(index, evnt)}
+                                                                            required
+                                                                        />
+                                                                    </Form.Group>
+                                                                </Col>
+                                                                <Col md>
+                                                                    <Form.Group className="mb-3" controlId="formMinimumQuantity">
+                                                                        <Form.Label style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
+                                                                            Minimum Quantity
+                                                                            <Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
+                                                                        </Form.Label>
+                                                                        <Form.Control
+                                                                            type="tel"
+                                                                            name="minimumQuantity"
+                                                                            value={minimumQuantity || ""}
+                                                                            onChange={(evnt) => handleChange(index, evnt)}
+                                                                            required
+                                                                        />
+                                                                    </Form.Group>
+                                                                </Col>
+                                                            </Row>
+                                                            <Row style={{ fontSize: FontSize.smallMedium }}>
+                                                                <Col md>
+                                                                    <Form.Group className="mb-3" controlId="formProductName">
+                                                                        <Form.Label
+                                                                            style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
+                                                                            SKU Name<Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
+                                                                        </Form.Label>
+                                                                        <Form.Control
+                                                                            value={SKU || ""}
+                                                                            name="SKU"
+                                                                            onChange={(evnt) => handleChange(index, evnt)}
+                                                                            required
+                                                                        />
+                                                                    </Form.Group>
+                                                                </Col>
+                                                                <Col md>
+                                                                    <Form.Group className="mb-3" controlId="formSku">
+                                                                        <Form.Label
+                                                                            style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
+                                                                            Current Stock<Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
+                                                                        </Form.Label>
+                                                                        <Form.Control
+                                                                            value={currentStock || ""}
+                                                                            name="currentStock"
+                                                                            onChange={(evnt) => handleChange(index, evnt)}
+                                                                            required
+                                                                        />
+                                                                    </Form.Group>
+                                                                </Col>
+                                                                <Col md>
+                                                                    <Form.Group className="mb-3" controlId="formSku">
+                                                                        <Form.Label
+                                                                            style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
+                                                                            Weight<Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
+                                                                        </Form.Label>
+                                                                        <Form.Control
+                                                                            value={weight || ""}
+                                                                            name="weight"
+                                                                            onChange={(evnt) => handleChange(index, evnt)}
+                                                                            required
+                                                                        />
+                                                                    </Form.Group>
+                                                                </Col>
+                                                                <Col md>
+                                                                    <Form.Group className="mb-3" controlId="formSku">
+                                                                        <Form.Label
+                                                                            style={{ fontSize: FontSize.smallMedium, fontWeight: "bold" }}>
+                                                                            Dimensions<Asterisk size={6} style={{ marginBottom: 5, marginLeft: 5, color: Colors.red }} />
+                                                                        </Form.Label>
+                                                                        <Form.Control
+                                                                            value={dimension || ""}
+                                                                            name="dimension"
+                                                                            onChange={(evnt) => handleChange(index, evnt)}
+                                                                            required
+                                                                        />
+                                                                    </Form.Group>
+                                                                </Col>
+                                                            </Row>
+                                                            <Row>
+                                                                <Col md>
+                                                                    {(inputFields.length >= 1) ? <Button variant="outline-danger" onClick={() => { removeInputFields(index) }}>Remove</Button> : ''}
+                                                                </Col>
+                                                            </Row>
+                                                        </Row>
 
-
-                                                </Row>
-
-
-                                                <Button variant="primary">Save Variant</Button>
-                                            </Card.Body>
-                                        </Card>
+                                                    </div>
+                                                )
+                                            })
+                                        }
                                     </Row>
                                 </div>
 
                             </AccordionTab>
                             <AccordionTab header="Product Images">
                                 <div>
-                                    <div className="card">
-                                        <FileUpload name="demo[]" url="https://primefaces.org/primereact/showcase/upload.php" onUpload={onUpload} multiple accept="image/*" maxFileSize={1000000}
-                                            emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
-                                    </div>
+                                    {/* <FileUpload 
+                                            name="demo[]" 
+                                            url="https://primefaces.org/primereact/showcase/upload.php"
+                                            onUpload={onUpload}
+                                            multiple accept="image/*"
+                                            maxFileSize={1000000}
+                                            emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} /> */}
+
+                                    <Form.Group controlId="formFile" className="mb-3" >
+                                        <Form.Control
+                                            ref={aRef}
+                                            type="file"
+                                            style={{ fontSize: 12 }}
+                                            onChange={e => {
+                                                setImageFile(e.target.files[0]);
+                                            }}
+                                            accept="image/png, image/gif, image/jpeg"
+                                        />
+                                    </Form.Group>
+                                    {imagefile ?
+                                        <Col sm={4}>
+                                            <div className="border rounded" style={{ marginTop: 10, marginBottom: 10, padding: 10 }}>
+                                                <Row className="align-items-center">
+                                                    <Col md>
+                                                        <Image
+                                                            src={URL.createObjectURL(imagefile)}
+                                                            height={75}
+                                                            style={{ cursor: "pointer" }}
+                                                            preview
+                                                        />
+                                                    </Col>
+                                                    <Col md={{ span: 1 }}>
+                                                        <Tooltip target=".right-button" />
+                                                        <span
+                                                            className="right-button"
+                                                            style={{ color: Colors.green, cursor: "pointer" }}
+                                                            data-pr-tooltip="Upload Image"
+                                                            onClick={() => { handleImageUpload() }}>
+                                                            <i class="fa fa-check fa-1x" aria-hidden="true"></i>
+                                                        </span>
+                                                    </Col>
+                                                    <Col md={{ span: 1 }} style={{ margin: 20 }}>
+                                                        <Tooltip target=".wrong-button" />
+                                                        <span
+                                                            className="wrong-button"
+                                                            data-pr-tooltip="Cancel Image"
+                                                            style={{ color: Colors.red, cursor: "pointer" }}
+                                                            onClick={() => { setImageFile(null); aRef.current.value = null; }}>
+                                                            <i class="fa fa-times fa-1x" aria-hidden="true"></i>
+                                                        </span>
+                                                    </Col>
+                                                </Row>
+
+                                            </div>
+                                        </Col>
+                                        :
+                                        null
+                                    }
+                                    {itemImages.length !== 0 ?
+                                        <div>
+                                            {itemImages.map((pat, index) => {
+                                                return (
+                                                    <div key={"imgDoc" + index} >
+                                                        <Col sm={4}>
+                                                            <div className="border rounded" style={{ marginTop: 10, marginBottom: 10, padding: 10 }}>
+                                                                <Row style={{ alignContent: "center", marginBottom: 5 }}>
+                                                                    <Col md={2} style={{ fontSize: 12, color: "grey", fontWeight: "bold" }}>
+                                                                        <Image
+                                                                            src={`${API_BASE}/images/products/${pat.productImageLink}`}
+                                                                            height={75}
+                                                                            style={{ cursor: "pointer" }}
+                                                                            preview
+                                                                        />
+                                                                    </Col>
+                                                                </Row>
+                                                            </div>
+                                                        </Col>
+                                                    </div>
+                                                );
+                                            })
+                                            }
+                                        </div>
+                                        :
+                                        null
+                                    }
                                 </div>
                             </AccordionTab>
                         </Accordion>

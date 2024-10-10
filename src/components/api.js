@@ -681,3 +681,16 @@ export const createOrderMaster = async (toInput) => {
         console.error("api - createOrderMaster error: " + error);
     }
 }
+
+//PRODUCT IMAGE
+export const createProductImage = async (formData) => {
+    try {
+        const response = await fetch(`${API_BASE}/createproductimage`, {
+            method: "POST",
+            body: formData
+        });
+        return response;
+    } catch (error) {
+        console.error("api - createProductImage error: " + error);
+    }
+}
