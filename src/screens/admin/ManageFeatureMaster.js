@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef  } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Col, Form, Row, Button, Spinner, Modal } from "react-bootstrap";
 import { Asterisk } from "react-bootstrap-icons";
@@ -8,15 +8,16 @@ import "../../components/admincss.css";
 import { Colors, FontSize } from "../../common/ConstantStyles";
 import { addNewFeature, deleteFeature, getAllFeatures, getFeatureById, updateFeature } from "../../components/api";
 import { CDBCard, CDBCardBody, CDBDataTable } from 'cdbreact';
+import { Toast } from 'primereact/toast';
 
 const ManageFeatureMaster = () => {
 
+    const toast = useRef(null);
     const userLoginId = localStorage.getItem("userLoginId");
     const [features, setFeatures] = useState([]);
     const [featureName, setFeatureName] = useState("");
     const [featureId, setFeatureId] = useState(null);
     const [status, setStatus] = useState("");
-    const [updateMessage, setUpdateMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const [show, setShow] = useState(false);
 
@@ -33,19 +34,16 @@ const ManageFeatureMaster = () => {
                 setLoading(false);
                 if (!response.ok) {
                     const error = (data && data.message) || response.status;
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 } else {
                     setFeatures(data.data);
                 }
                 if (response.status === 422) {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                 }
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
             });
 
@@ -71,8 +69,7 @@ const ManageFeatureMaster = () => {
                 setLoading(false);
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
             });
     }
@@ -81,8 +78,7 @@ const ManageFeatureMaster = () => {
         event.preventDefault();
 
         if (!featureName) {
-            setUpdateMessage(<span style={{ color: Colors.red }}>Please enter feature name</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Please enter feature name" });
         } else {
 
             setLoading(true);
@@ -101,22 +97,18 @@ const ManageFeatureMaster = () => {
                         setLoading(false);
                         if (!response.ok) {
                             const error = (data && data.message) || response.status;
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: error });
                         } else {
-                            setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                             clearData();
                             fetchAllFeatures();
                         }
                         if (response.status === 422) {
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                         }
                     })
                     .catch(error => {
-                        setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
+                        toast.current.show({ life: 3000, severity: 'error', summary: error });
                         setLoading(false);
                         clearData();
                     });
@@ -132,22 +124,18 @@ const ManageFeatureMaster = () => {
                         setLoading(false);
                         if (!response.ok) {
                             const error = (data && data.message) || response.status;
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: error });
                         } else {
-                            setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                             clearData();
                             fetchAllFeatures();
                         }
                         if (response.status === 422) {
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                         }
                     })
                     .catch(error => {
-                        setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
+                        toast.current.show({ life: 3000, severity: 'error', summary: error });
                         setLoading(false);
                         clearData();
                     });
@@ -173,22 +161,18 @@ const ManageFeatureMaster = () => {
                 setLoading(false);
                 if (!response.ok) {
                     const error = (data && data.message) || response.status;
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 } else {
-                    setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                     clearData();
                     fetchAllFeatures();
                 }
                 if (response.status === 422) {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                 }
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
                 clearData();
             });
@@ -243,9 +227,9 @@ const ManageFeatureMaster = () => {
 
                 <h5>Manage Feature Master</h5>
 
-                <div style={{ fontSize: FontSize.smallMedium, fontWeight: "bold", marginBottom: 10, paddingLeft: 20 }}>{updateMessage}</div>
-
                 <div className="table-content">
+
+                <Toast ref={toast} position="top-center" />
 
                     <Modal show={show} onHide={() => setShow(false)}>
                         <Modal.Header closeButton>

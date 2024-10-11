@@ -616,6 +616,19 @@ export const getProductById = async (toInput) => {
     }
 }
 
+export const deleteProduct = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/deleteproduct`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - deleteProduct error: " + error);
+    }
+}
+
 //CART
 export const getCartItems = async (toInput) => {
     try {
@@ -692,5 +705,18 @@ export const createProductImage = async (formData) => {
         return response;
     } catch (error) {
         console.error("api - createProductImage error: " + error);
+    }
+}
+
+export const deleteProductImage = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/deleteproductimage`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - deleteProductImage error: " + error);
     }
 }

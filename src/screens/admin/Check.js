@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Image } from "react-bootstrap";
 import { DataTable } from 'primereact/datatable';
@@ -14,14 +14,12 @@ import { Colors, FontSize } from "../../common/ConstantStyles";
 import { getAllCategories, } from "../../components/api";
 
 import { API_BASE } from "../../components/urlLink";
-
+import { Toast } from 'primereact/toast';
 
 const Check = () => {
 
+    const toast = useRef(null);
     const [products, setProducts] = useState([]);
-
-    const [updateMessage, setUpdateMessage] = useState("");
-
 
     useEffect(() => {
         fetchAllStates()
@@ -34,20 +32,17 @@ const Check = () => {
                 const data = isJson && await response.json();
                 if (!response.ok) {
                     const error = (data && data.message) || response.status;
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 } else {
                     setProducts(data.data);
                     console.log("Categories: " + JSON.stringify(data.data));
                 }
                 if (response.status === 422) {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                 }
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
             });
 
     }
@@ -114,7 +109,7 @@ const Check = () => {
 
                 <h5>Manage Categories</h5>
 
-                <div style={{ fontSize: FontSize.smallMedium, fontWeight: "bold", marginBottom: 10, paddingLeft: 20 }}>{updateMessage}</div>
+                <Toast ref={toast} position="top-center" />
 
                 <div>
 

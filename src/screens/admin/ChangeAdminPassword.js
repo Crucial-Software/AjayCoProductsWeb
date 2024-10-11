@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Col, Form, Row, Button, InputGroup, Spinner } from "react-bootstrap";
 import { Asterisk } from "react-bootstrap-icons";
@@ -8,10 +8,13 @@ import "../../components/admincss.css";
 import { Colors, FontSize } from "../../common/ConstantStyles";
 import { updatePassword } from "../../components/api";
 import { EyeFill, EyeSlashFill } from "react-bootstrap-icons";
+import { Toast } from 'primereact/toast';
 
 const ChangeAdminPassword = () => {
 
     const mobile = localStorage.getItem("userMobile");
+
+    const toast = useRef(null);
 
     const [currentPassword, setCurrentPassword] = useState("");
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -19,27 +22,22 @@ const ChangeAdminPassword = () => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [updateMessage, setUpdateMessage] = useState("");
     const [loading, setLoading] = useState(false);
 
     const onChangePasswordFormSubmit = async (event) => {
-         event.preventDefault();
+        event.preventDefault();
 
         if (currentPassword.length < 6) {
-            setUpdateMessage(<span style={{ color: "red" }}>Current Password is too short</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Current Password is too short" });
         }
         else if (newPassword.length < 6) {
-            setUpdateMessage(<span style={{ color: "red" }}>New password is too short</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "New password is too short" });
         }
         else if (confirmPassword.length < 6) {
-            setUpdateMessage(<span style={{ color: "red" }}>Confirm password is too short</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Confirm password is too short" });
         }
         else if (newPassword !== confirmPassword) {
-            setUpdateMessage(<span style={{ color: "red" }}>Password did not matched</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Password did not matched" });
         }
         else {
 
@@ -55,8 +53,7 @@ const ChangeAdminPassword = () => {
                     const isJson = response.headers.get('content-type')?.includes('application/json');
                     const data = isJson && await response.json();
                     if (response.ok) {
-                        setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
+                        toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                         clearData();
                     } else {
                         const error = (data && data.message) || response.status;
@@ -65,8 +62,7 @@ const ChangeAdminPassword = () => {
                     setLoading(false);
                 })
                 .catch(error => {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                     setLoading(false);
                     clearData();
                 });
@@ -95,9 +91,9 @@ const ChangeAdminPassword = () => {
 
                 <h5>Change Password</h5>
 
-                <div style={{ fontSize: FontSize.smallMedium, fontWeight: "bold", marginBottom: 10, paddingLeft: 20 }}>{updateMessage}</div>
-
                 <div className="table-content">
+
+                <Toast ref={toast} position="top-center" />
 
                     <Form onSubmit={onChangePasswordFormSubmit} >
 

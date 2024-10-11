@@ -30,7 +30,7 @@ import ManageFeatureMaster from './screens/admin/ManageFeatureMaster';
 import ManageFeatureOptions from './screens/admin/ManageFeatureOptions';
 import ChangeAdminPassword from './screens/admin/ChangeAdminPassword';
 import ProtectedRoute from './components/ProtectedRoute';
-import Check from './screens/admin/Check';
+//import Check from './screens/admin/Check';
 import ManageProducts from './screens/admin/ManageProducts';
 import CreateNewProduct from './screens/admin/CreateNewProduct';
 
@@ -65,7 +65,7 @@ function App() {
         <Route path="/users" element={<PrivateRoute Component={Users} userRole={"admin"} />} />
         <Route path="/customers" element={<PrivateRoute Component={Customers} userRole={"admin"} />} />
         <Route path="/managestates" element={<PrivateRoute Component={ManageStates} userRole={"admin"} />} /> 
-        <Route path="/check" element={<PrivateRoute Component={Check} userRole={"admin"} />} />
+        {/* <Route path="/check" element={<PrivateRoute Component={Check} userRole={"admin"} />} /> */}
         <Route path="/managecities" element={<PrivateRoute Component={ManageCities} userRole={"admin"} />} />
         <Route path="/customergroup" element={<PrivateRoute Component={CustomerGroup} userRole={"admin"} />} />
         <Route path="/managecategory" element={<PrivateRoute Component={ManageCategory} userRole={"admin"} />} />

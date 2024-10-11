@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Col, Form, Row, Button, Spinner, Modal } from "react-bootstrap";
 import { Asterisk } from "react-bootstrap-icons";
@@ -8,9 +8,11 @@ import "../../components/admincss.css";
 import { Colors, FontSize } from "../../common/ConstantStyles";
 import { addNewCity, deleteCity, getAllCities, getAllStates, getCityById, updateCity } from "../../components/api";
 import { CDBCard, CDBCardBody, CDBDataTable } from 'cdbreact';
+import { Toast } from 'primereact/toast';
 
 const ManageCities = () => {
 
+    const toast = useRef(null);
     const userLoginId = localStorage.getItem("userLoginId");
     const [cities, setCities] = useState([]);
     const [states, setStates] = useState([]);
@@ -18,7 +20,6 @@ const ManageCities = () => {
     const [cityId, setCityId] = useState(null);
     const [stateId, setStateId] = useState(null);
     const [status, setStatus] = useState("");
-    const [updateMessage, setUpdateMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const [show, setShow] = useState(false);
 
@@ -36,19 +37,16 @@ const ManageCities = () => {
                 setLoading(false);
                 if (!response.ok) {
                     const error = (data && data.message) || response.status;
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 } else {
                     setStates(data.data);
                 }
                 if (response.status === 422) {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                 }
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
             });
     }
@@ -62,19 +60,16 @@ const ManageCities = () => {
                 setLoading(false);
                 if (!response.ok) {
                     const error = (data && data.message) || response.status;
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 } else {
                     setCities(data.data);
                 }
                 if (response.status === 422) {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                 }
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
             });
     }
@@ -100,8 +95,7 @@ const ManageCities = () => {
                 setLoading(false);
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
             });
     }
@@ -110,12 +104,10 @@ const ManageCities = () => {
         event.preventDefault();
 
         if (stateId === null || stateId === 'Select' || stateId === "") {
-            setUpdateMessage(<span style={{ color: Colors.red }}>Please select state</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Please select state" });
         }
         else if (!cityName) {
-            setUpdateMessage(<span style={{ color: Colors.red }}>Please enter city name</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Please enter city name" });
         } else {
 
             setLoading(true);
@@ -135,22 +127,18 @@ const ManageCities = () => {
                         setLoading(false);
                         if (!response.ok) {
                             const error = (data && data.message) || response.status;
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: error });
                         } else {
-                            setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                             clearData();
                             fetchAllCities();
                         }
                         if (response.status === 422) {
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                         }
                     })
                     .catch(error => {
-                        setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
+                        toast.current.show({ life: 3000, severity: 'error', summary: error });
                         setLoading(false);
                         clearData();
                     });
@@ -167,22 +155,18 @@ const ManageCities = () => {
                         setLoading(false);
                         if (!response.ok) {
                             const error = (data && data.message) || response.status;
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: error });
                         } else {
-                            setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                             clearData();
                             fetchAllCities();
                         }
                         if (response.status === 422) {
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                         }
                     })
                     .catch(error => {
-                        setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
+                        toast.current.show({ life: 3000, severity: 'error', summary: error });
                         setLoading(false);
                         clearData();
                     });
@@ -208,22 +192,18 @@ const ManageCities = () => {
                 setLoading(false);
                 if (!response.ok) {
                     const error = (data && data.message) || response.status;
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 } else {
-                    setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                     clearData();
                     fetchAllCities();
                 }
                 if (response.status === 422) {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                 }
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
                 clearData();
             });
@@ -283,9 +263,9 @@ const ManageCities = () => {
 
                 <h5>Manage City</h5>
 
-                <div style={{ fontSize: FontSize.smallMedium, fontWeight: "bold", marginBottom: 10, paddingLeft: 20 }}>{updateMessage}</div>
-
                 <div className="table-content">
+
+                <Toast ref={toast} position="top-center" />
 
                     <Modal show={show} onHide={() => setShow(false)}>
                         <Modal.Header closeButton>

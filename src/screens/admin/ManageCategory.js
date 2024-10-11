@@ -9,15 +9,16 @@ import { Colors, FontSize } from "../../common/ConstantStyles";
 import { addNewCategory, deleteCategory, getAllCategories, getCategoryById, updateCategory } from "../../components/api";
 import { CDBCard, CDBCardBody, CDBDataTable } from 'cdbreact';
 import { API_BASE } from "../../components/urlLink";
+import { Toast } from 'primereact/toast';
 
 const ManageCategory = () => {
 
+    const toast = useRef(null);
     const userLoginId = localStorage.getItem("userLoginId");
     const [categories, setCategories] = useState([]);
     const [categoryName, setCategoryName] = useState("");
     const [categoryId, setCategoryId] = useState(null);
     const [status, setStatus] = useState("");
-    const [updateMessage, setUpdateMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const [show, setShow] = useState(false);
 
@@ -38,19 +39,16 @@ const ManageCategory = () => {
                 setLoading(false);
                 if (!response.ok) {
                     const error = (data && data.message) || response.status;
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 } else {
                     setCategories(data.data);
                 }
                 if (response.status === 422) {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                 }
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
             });
 
@@ -77,8 +75,7 @@ const ManageCategory = () => {
                 setLoading(false);
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
             });
     }
@@ -87,11 +84,9 @@ const ManageCategory = () => {
         event.preventDefault();
 
         if (!categoryName) {
-            setUpdateMessage(<span style={{ color: Colors.red }}>Please enter category name</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Please enter category name" });
         } if (uploadfile === null || files === "") {
-            setUpdateMessage(<span style={{ color: Colors.red }}>Please select category image</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Please select category image" });
         }
 
         else {
@@ -103,15 +98,13 @@ const ManageCategory = () => {
             if (files !== 0) {
                 for (let i = 0; i < files.length; i++) {
                     if (files[i].size > 100000) {
-                        setUpdateMessage(<span style={{ color: "red" }}>File size exceeded!! Please select filesize less than 20KB.</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
+                        toast.current.show({ life: 3000, severity: 'error', summary: "File size exceeded!! Please select filesize less than 20KB." });
                         return;
                     }
                     formData.append('categoryImage', files[i])
                 }
             } else {
-                setUpdateMessage(<span style={{ color: Colors.red }}>Please select category image</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: "Please select category image" });
             }
 
             formData.append('categoryName', categoryName);
@@ -129,22 +122,18 @@ const ManageCategory = () => {
                         setLoading(false);
                         if (!response.ok) {
                             const error = (data && data.message) || response.status;
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: error });
                         } else {
-                            setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                             clearData();
                             fetchAllCategories();
                         }
                         if (response.status === 422) {
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                         }
                     })
                     .catch(error => {
-                        setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
+                        toast.current.show({ life: 3000, severity: 'error', summary: error });
                         setLoading(false);
                         clearData();
                     });
@@ -160,22 +149,18 @@ const ManageCategory = () => {
                         setLoading(false);
                         if (!response.ok) {
                             const error = (data && data.message) || response.status;
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: error });
                         } else {
-                            setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                             clearData();
                             fetchAllCategories();
                         }
                         if (response.status === 422) {
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                         }
                     })
                     .catch(error => {
-                        setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
+                        toast.current.show({ life: 3000, severity: 'error', summary: error });
                         setLoading(false);
                         clearData();
                     });
@@ -201,22 +186,18 @@ const ManageCategory = () => {
                 setLoading(false);
                 if (!response.ok) {
                     const error = (data && data.message) || response.status;
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 } else {
-                    setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                     clearData();
                     fetchAllCategories();
                 }
                 if (response.status === 422) {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                 }
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
                 clearData();
             });
@@ -283,9 +264,9 @@ const ManageCategory = () => {
 
                 <h5>Manage Category</h5>
 
-                <div style={{ fontSize: FontSize.smallMedium, fontWeight: "bold", marginBottom: 10, paddingLeft: 20 }}>{updateMessage}</div>
-
                 <div className="table-content">
+
+                <Toast ref={toast} position="top-center" />
 
                     <Modal show={show} onHide={() => setShow(false)}>
                         <Modal.Header closeButton>

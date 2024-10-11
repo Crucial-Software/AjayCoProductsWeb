@@ -10,6 +10,7 @@ const red="#DB3022";
 const green="#0B840D";
 const yellow="#F0CA00";
 const golden="#DEC18C";
+const blue="#04C4E8";
  
 export const Colors = {
     black: black,
@@ -24,6 +25,7 @@ export const Colors = {
     green: green,
     yellow: yellow,
     golden: golden,
+    blue: blue,
 };
 
 export const Fonts = {

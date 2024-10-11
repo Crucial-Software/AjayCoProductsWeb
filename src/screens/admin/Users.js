@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Col, Form, Row, Button, Spinner, Modal } from "react-bootstrap";
 import { Asterisk } from "react-bootstrap-icons";
 import Sidebar from '../../components/SideBar';
@@ -7,9 +7,11 @@ import "../../components/admincss.css";
 import { Colors, FontSize } from "../../common/ConstantStyles";
 import { deleteUser, getAllUsers, getUserById, updateUser } from "../../components/api";
 import { CDBCard, CDBCardBody, CDBDataTable } from 'cdbreact';
+import { Toast } from 'primereact/toast';
 
 const Users = () => {
 
+    const toast = useRef(null);
     const [users, setUsers] = useState([]);
     const [name, setName] = useState("");
     const [role, setRole] = useState("");
@@ -17,7 +19,6 @@ const Users = () => {
     const [email, setEmail] = useState("");
     const [userId, setUserId] = useState(null);
     const [status, setStatus] = useState("");
-    const [updateMessage, setUpdateMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const [show, setShow] = useState(false);
 
@@ -34,20 +35,17 @@ const Users = () => {
                 setLoading(false);
                 if (!response.ok) {
                     const error = (data && data.message) || response.status;
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 } else {
                     setUsers(data.data);
                 }
                 if (response.status === 422) {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                 }
                 setLoading(false);
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
             });
 
@@ -76,8 +74,7 @@ const Users = () => {
                 setLoading(false);
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
             });
     }
@@ -88,12 +85,10 @@ const Users = () => {
         let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;  // eslint-disable-line
 
         if (mobile.length !== 10) {
-            setUpdateMessage(<span style={{ color: "red" }}>Enter a valid 10 digit mobile number</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Enter a valid 10 digit mobile number" });
         }
         else if (reg.test(email) === false) {
-            setUpdateMessage(<span style={{ color: "red" }}>Enter a valid email id</span>);
-            setTimeout(() => setUpdateMessage(""), 3000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Enter a valid email id" });
         }
         else {
 
@@ -115,22 +110,18 @@ const Users = () => {
                         setLoading(false);
                         if (!response.ok) {
                             const error = (data && data.message) || response.status;
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: error });
                         } else {
-                            setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                             clearData();
                             fetchAllUsers();
                         }
                         if (response.status === 422) {
-                            setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                            setTimeout(() => setUpdateMessage(""), 3000);
+                            toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                         }
                     })
                     .catch(error => {
-                        setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                        setTimeout(() => setUpdateMessage(""), 3000);
+                        toast.current.show({ life: 3000, severity: 'error', summary: error });
                         setLoading(false);
                         clearData();
                     });
@@ -157,22 +148,18 @@ const Users = () => {
                 setLoading(false);
                 if (!response.ok) {
                     const error = (data && data.message) || response.status;
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
                 } else {
-                    setUpdateMessage(<span style={{ color: Colors.green }}>{data.message}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                     clearData();
                     fetchAllUsers();
                 }
                 if (response.status === 422) {
-                    setUpdateMessage(<span style={{ color: Colors.red }}>{data.error.undefined}</span>);
-                    setTimeout(() => setUpdateMessage(""), 3000);
+                    toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                 }
             })
             .catch(error => {
-                setUpdateMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setUpdateMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
                 setLoading(false);
                 clearData();
             });
@@ -238,9 +225,9 @@ const Users = () => {
 
                 <h5>Manage Users</h5>
 
-                <div style={{ fontSize: FontSize.smallMedium, fontWeight: "bold", marginBottom: 10, paddingLeft: 20 }}>{updateMessage}</div>
-
                 <div className="table-content">
+
+                    <Toast ref={toast} position="top-center" />
 
                     <Modal show={show} onHide={() => setShow(false)}>
                         <Modal.Header closeButton>
