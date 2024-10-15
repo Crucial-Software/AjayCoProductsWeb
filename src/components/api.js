@@ -616,6 +616,19 @@ export const getProductById = async (toInput) => {
     }
 }
 
+export const createProduct = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/createproduct`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - createProduct error: " + error);
+    }
+}
+
 export const deleteProduct = async (toInput) => {
     try {
         const response = await fetch(`${API_BASE}/deleteproduct`, {
@@ -626,6 +639,99 @@ export const deleteProduct = async (toInput) => {
         return response;
     } catch (error) {
         console.error("api - deleteProduct error: " + error);
+    }
+}
+
+//PRODUCT VARIANT
+export const createProductVariant = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/createproductvariant`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - createProductVariant error: " + error);
+    }
+}
+
+export const getProductVariantById = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/findproductvariant`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - getProductVariantById error: " + error);
+    }
+}
+
+export const deleteProductVariant = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/deleteproductvariant`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - deleteProductVariant error: " + error);
+    }
+}
+
+export const updateProductVariant = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/updateproductvariant`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - updateProductVariant error: " + error);
+    }
+}
+
+//PRODUCT VARIANT OPTION
+export const createProductVariantOption = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/createvariantoption`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - createProductVariantOption error: " + error);
+    }
+}
+
+//PRODUCT IMAGE
+export const createProductImage = async (formData) => {
+    try {
+        const response = await fetch(`${API_BASE}/createproductimage`, {
+            method: "POST",
+            body: formData
+        });
+        return response;
+    } catch (error) {
+        console.error("api - createProductImage error: " + error);
+    }
+}
+
+export const deleteProductImage = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/deleteproductimage`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - deleteProductImage error: " + error);
     }
 }
 
@@ -695,28 +801,6 @@ export const createOrderMaster = async (toInput) => {
     }
 }
 
-//PRODUCT IMAGE
-export const createProductImage = async (formData) => {
-    try {
-        const response = await fetch(`${API_BASE}/createproductimage`, {
-            method: "POST",
-            body: formData
-        });
-        return response;
-    } catch (error) {
-        console.error("api - createProductImage error: " + error);
-    }
-}
 
-export const deleteProductImage = async (toInput) => {
-    try {
-        const response = await fetch(`${API_BASE}/deleteproductimage`, {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(toInput)
-        });
-        return response;
-    } catch (error) {
-        console.error("api - deleteProductImage error: " + error);
-    }
-}
+
+
