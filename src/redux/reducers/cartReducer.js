@@ -22,14 +22,14 @@ const cartReducer = (state = initialState, action) => {
         }
         case Constants.INCREMENT_ITEM_QUANTITY: {
             const plusCartItems = state.cart.map((item) => {
-                return item._id === action.payload._id && item.variantID._id === action.payload.variantID._id ? { ...item, quantity: parseInt(item.quantity) + 6,} : item;
+                return item._id === action.payload._id && item.variantID._id === action.payload.variantID._id ? { ...item, quantity: parseInt(item.quantity) + (item.variantID? item.variantID.quantityIncreament : 0)} : item;
             });
             return { ...state, cart: plusCartItems };
         }
         case Constants.DECREMENT_ITEM_QUANTITY: {
             const minusCartItems = state.cart.map((item) => {
                     if (item._id === action.payload._id && item.variantID._id === action.payload.variantID._id) {
-                        return { ...item, quantity: parseInt(item.quantity) - 6 };
+                        return { ...item, quantity: parseInt(item.quantity) - (item.variantID? item.variantID.quantityIncreament : 0) };
                     }
                     return item;
                 })

@@ -26,16 +26,24 @@ export default function ProductDetails() {
 
     const [loading, setLoading] = useState(false);
     const [productDetails, setProductDetails] = useState([]);
-    const [selectedVariant, setSelectedVariant] = useState("- Select Size -");
-    const [selectedVariantDetails, setSelectedVariantDetails] = useState([]);
+    const [productVariantsList, setProductVariantsList] = useState([]);
     const [itemImages, setItemImages] = useState([]);
 
     const [showAlert, setShowAlert] = useState(false);
     const [alertVariant, setAlertVariant] = useState("");
     const [alertMessage, setAlertMessage] = useState("");
 
+    const [selectedVariant, setSelectedVariant] = useState();
+    const [sku, setSku] = useState("");
+    const [size, setSize] = useState("");
+    const [weight, setWeight] = useState("");
+    const [availability, setAvailability] = useState("");
+    const [regularPrice, setRegularPrice] = useState("");
+    const [offerPrice, setOfferPrice] = useState("");
     const [minimumQuantity, setMinimumQuantity] = useState(0);
     const [incrementQuantityValue, setIncrementQuantityValue] = useState(1);
+    const [featureOptionName, setFeatureOptionName] = useState("");
+
     const incrementQuantity = () => {
         setMinimumQuantity(minimumQuantity + incrementQuantityValue);
     }
@@ -77,6 +85,19 @@ export default function ProductDetails() {
                         setItemImages(data.data[0].productImages);
                     }
                 }
+                if (data.data[0].productVariants) {
+                    setProductVariantsList(data.data[0].productVariants);
+                    setSelectedVariant(data.data[0].productVariants[0]._id);
+                    setSku(data.data[0].productVariants[0].SKU);
+                    setSize(data.data[0].productVariants[0].dimensions);
+                    setWeight(data.data[0].productVariants[0].weight);
+                    setAvailability(data.data[0].productVariants[0].currentStock);
+                    setRegularPrice(data.data[0].productVariants[0].regularPrice);
+                    setOfferPrice(data.data[0].productVariants[0].offerPrice);
+                    setMinimumQuantity(data.data[0].productVariants[0].minimumQuantity);
+                    setIncrementQuantityValue(data.data[0].productVariants[0].quantityIncreament);
+                    setFeatureOptionName(data.data[0].productVariants[0].variantOptions[0].featureOptionID.featureOptionName);
+                }
             })
             .catch(error => {
                 setLoading(false);
@@ -86,34 +107,28 @@ export default function ProductDetails() {
     }
 
     const handleVariantSelect = (variantId) => {
-        if (variantId !== "- Select Size -") {
-            setSelectedVariant(variantId);
-            var selVariantDetails = productDetails.productVariants.filter(function (v, i) {
-                if (v._id === variantId) {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
-            setSelectedVariantDetails(selVariantDetails[0]);
-            setMinimumQuantity(selVariantDetails[0].minimumQuantity);
-            setIncrementQuantityValue(selVariantDetails[0].quantityIncreament);
-        } else {
-            setSelectedVariant("- Select Size -");
-            setSelectedVariantDetails([]);
-            setMinimumQuantity(0);
-            setIncrementQuantityValue(1);
-        }
+        setSelectedVariant(variantId);
+        var selVariantDetails = productVariantsList.filter(function (v, i) {
+            if (v._id === variantId) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        setSku(selVariantDetails[0].SKU);
+        setSize(selVariantDetails[0].dimensions);
+        setWeight(selVariantDetails[0].weight);
+        setAvailability(selVariantDetails[0].currentStock);
+        setRegularPrice(selVariantDetails[0].regularPrice);
+        setOfferPrice(selVariantDetails[0].offerPrice);
+        setMinimumQuantity(selVariantDetails[0].minimumQuantity);
+        setIncrementQuantityValue(selVariantDetails[0].quantityIncreament);
+        setFeatureOptionName(selVariantDetails[0].variantOptions[0].featureOptionID.featureOptionName);
     }
 
     const addToCart = () => {
 
-        if (selectedVariant === "" || selectedVariant === "- Select Size -") {
-            setShowAlert(true);
-            setAlertVariant("danger");
-            setAlertMessage("Please select size");
-            setTimeout(() => { setShowAlert(false) }, 2000);
-        } else if (minimumQuantity === 0) {
+        if (minimumQuantity === 0) {
             setShowAlert(true);
             setAlertVariant("danger");
             setAlertMessage("Please select Quantity");
@@ -122,30 +137,14 @@ export default function ProductDetails() {
             navigate('/login');
         } else {
             setMinimumQuantity(0);
-            setSelectedVariant("- Select Size -");
-            //let item = null;
-            // let tAmount = parseFloat(minimumQuantity * selectedVariantDetails.offerPrice);
-            //item = { ...product, quantity: minimumQuantity, size: size, totalPrice: tAmount };
+            setSelectedVariant(null);
             let item = {
-                //productName: productDetails.productName,
-                //SKU: selectedVariantDetails.SKU,
-                //selectedVariant: selectedVariant,
-                //price: selectedVariantDetails.offerPrice,
                 quantity: minimumQuantity,
-                //incrementQuantity: incrementQuantityValue,
                 unitID: productDetails.unitID._id,
-                variantID: selectedVariantDetails._id,
+                variantID: selectedVariant,
                 userID: loginid,
-                //iGSTper: 18,
-                //sGSTper: 9,
-                //cGSTper: 9
-                //remove -> productName, SKU, selectedVariant, price, incrementQuantity, igst, sgst, cgst
             }
             dispatch(addItemToCart(item));
-            // setShowAlert(true);
-            // setAlertVariant("success");
-            // setAlertMessage("Added to cart");
-            // setTimeout(() => { setShowAlert(false) }, 2000);
         }
     }
 
@@ -185,7 +184,7 @@ export default function ProductDetails() {
                         :
                         <>
                             <Row>
-                                <Col className="justify-content-md-center" lg>
+                                <Col className="justify-content-md-center">
                                     {itemImages.length !== 0 ?
                                         <Galleria
                                             value={itemImages}
@@ -195,18 +194,15 @@ export default function ProductDetails() {
                                             circular
                                             autoPlay
                                             showItemNavigators
-                                            transitionInterval={2000}
+                                            transitionInterval={3000}
                                         />
                                         :
                                         <Row>
                                             <p style={{ padding: 20, textAlign: "center", marginBottom: 50, color: Colors.darkGrey, }}>No Images Found</p>
                                         </Row>
-
                                     }
-
                                 </Col>
-                                <Col lg>
-
+                                <Col >
                                     <Row>
                                         <Col>
                                             <Form.Label style={{ fontSize: 25, color: Colors.black, fontWeight: 400 }}>
@@ -216,27 +212,10 @@ export default function ProductDetails() {
                                     </Row>
 
                                     <Row>
-                                        {/* <Col><Form.Label style={{ fontSize: 18, fontWeight: "bold", color: Colors.golden }}>₹ {product.price.toFixed(2)}</Form.Label></Col> */}
-                                        <Col>
-                                            <Form.Label style={{ fontSize: 18, fontWeight: "bold", color: Colors.golden }}>
-                                                ₹ Price Range
-                                            </Form.Label>
-                                        </Col>
-                                    </Row>
-
-                                    <Row>
-                                        <Col>
-                                            <Form.Label style={{ fontSize: 14, color: Colors.darkGrey }}>
-                                                {productDetails.productName}
-                                            </Form.Label>
-                                        </Col>
-                                    </Row>
-
-                                    <Row>
                                         <Col>
                                             <Form.Label>
                                                 <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>SKU:</b>
-                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> {selectedVariantDetails.SKU} </span>
+                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> {sku ? sku : "N/A"} </span>
                                             </Form.Label>
                                         </Col>
                                     </Row>
@@ -245,7 +224,7 @@ export default function ProductDetails() {
                                         <Col>
                                             <Form.Label>
                                                 <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Size:</b>
-                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> </span>
+                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> {size ? size : "N/A"}</span>
                                             </Form.Label>
                                         </Col>
                                     </Row>
@@ -254,7 +233,7 @@ export default function ProductDetails() {
                                         <Col>
                                             <Form.Label>
                                                 <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Shipping Weight:</b>
-                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> </span>
+                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> {weight ? weight : "N/A"} </span>
                                             </Form.Label>
                                         </Col>
                                     </Row>
@@ -263,7 +242,7 @@ export default function ProductDetails() {
                                         <Col>
                                             <Form.Label>
                                                 <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Availability:</b>
-                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> </span>
+                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> {availability ? availability : "N/A"} </span>
                                             </Form.Label>
                                         </Col>
                                     </Row>
@@ -281,53 +260,56 @@ export default function ProductDetails() {
                                         <Col>
                                             <Form.Label>
                                                 <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Tags:</b>
-                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}>  </span>
+                                                <span style={{ fontSize: 14, color: Colors.darkGrey }}> {productDetails.productTags} </span>
                                             </Form.Label>
                                         </Col>
                                     </Row>
 
-                                    <Row>
+
+                                    {featureOptionName !== "Simple Product" ?
+                                        <>
+                                            <Row>
+                                                <Col>
+                                                    <Form.Label>
+                                                        <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Select Size:</b>
+                                                    </Form.Label>
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col md={6}>
+                                                    <Form.Control as="select" className="rounded-0 shadow" style={{ fontSize: 12, borderRadius: 4 }} value={selectedVariant} onChange={e => { handleVariantSelect(e.target.value); }} >
+                                                        {/* <option value={null}>- Select Size -</option> */}
+                                                        {productDetails.productVariants ?
+                                                            productDetails.productVariants.map((data, key) =>
+                                                                <option
+                                                                    key={data._id}
+                                                                    value={data._id}
+                                                                >
+                                                                    {data.variantOptions[0].featureOptionID.featureOptionName}
+                                                                </option>)
+                                                            : null}
+                                                    </Form.Control>
+                                                </Col>
+                                            </Row>
+                                        </>
+
+                                        : null
+                                    }
+
+                                    <Row style={{ marginTop: 20 }}>
                                         <Col>
                                             <Form.Label>
-                                                <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Size:</b>
+                                                <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Price:</b>
                                             </Form.Label>
+                                            <span style={{ fontSize: 14, fontWeight: "bold", color: Colors.lightGrey, textDecoration: 'line-through', marginLeft: 10, marginRight: 10 }}>
+                                                ₹ {regularPrice ? regularPrice : "N/A"}
+                                            </span>
+                                            <span style={{ fontSize: 16, fontWeight: "bold", color: Colors.golden, }}>
+                                                ₹ {offerPrice ? offerPrice : "N/A"}
+                                            </span>
                                         </Col>
                                     </Row>
 
-                                    <Row>
-                                        <Col md={6}>
-                                            <Form.Control as="select" className="rounded-0 shadow" style={{ fontSize: 12, borderRadius: 4 }} value={selectedVariant} onChange={e => { handleVariantSelect(e.target.value); }} >
-                                                <option value={null}>- Select Size -</option>
-                                                {productDetails.productVariants ?
-                                                    productDetails.productVariants.map((data, key) =>
-                                                        <option
-                                                            key={data._id}
-                                                            value={data._id}
-                                                        >
-                                                            {data.variantOptions[0].featureOptionID.featureOptionName}
-                                                        </option>)
-                                                    : null}
-                                            </Form.Control>
-                                        </Col>
-                                    </Row>
-                                    
-                                    {selectedVariant !== "- Select Size -" ?
-                                        <Row style={{ marginTop: 20 }}>
-                                            <Col>
-                                                <Form.Label>
-                                                    <b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Price:</b>
-                                                </Form.Label>
-                                                <span style={{ fontSize: 14, fontWeight: "bold", color: Colors.lightGrey, textDecoration: 'line-through', marginLeft: 10, marginRight: 10 }}>
-                                                    ₹ {selectedVariantDetails.regularPrice}
-                                                </span>
-                                                <span style={{ fontSize: 16, fontWeight: "bold", color: Colors.golden, }}>
-                                                    ₹ {selectedVariantDetails.offerPrice}
-                                                </span>
-                                            </Col>
-                                        </Row>
-                                        :
-                                        <Row></Row>
-                                    }
 
                                     <Row style={{ marginTop: 20 }}>
                                         <Col><Form.Label><b style={{ fontSize: 14, fontWeight: "bold", color: Colors.darkGrey }}>Quantity:</b> </Form.Label></Col>
@@ -419,18 +401,16 @@ export default function ProductDetails() {
                                                 </ul>
                                                 <div className="tab-content" id="pills-tabContent">
                                                     <div className="tab-pane border fade show active" id="pills-description" role="tabpanel" aria-labelledby="pills-description-tab">
-                                                        <p style={{ whiteSpace: 'pre-line', color: Colors.darkGrey, fontSize: 14 }}>
-                                                            description
-                                                        </p>
+                                                        <p style={{ whiteSpace: 'pre-line', color: Colors.darkGrey, fontSize: 14 }} dangerouslySetInnerHTML={{ __html: productDetails.productDesc }}></p>
                                                     </div>
                                                     <div className="tab-pane border fade" id="pills-manufacturer" role="tabpanel" aria-labelledby="pills-manufacturer-tab">
                                                         <p style={{ whiteSpace: 'pre-line', color: Colors.darkGrey, fontSize: 14 }}>
-                                                            additionalinfo
+
                                                         </p>
                                                     </div>
                                                     <div className="tab-pane border fade" id="pills-reviews" role="tabpanel" aria-labelledby="pills-reviews-tab">
                                                         <p style={{ whiteSpace: 'pre-line', color: Colors.darkGrey, fontSize: 14 }}>
-                                                            reviews
+
                                                         </p>
                                                     </div>
                                                 </div>

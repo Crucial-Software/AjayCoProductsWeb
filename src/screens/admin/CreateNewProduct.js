@@ -84,7 +84,6 @@ const CreateNewProduct = () => {
     const [selectedFeatureOptionValue, setSelectedFeatureOptionValue] = useState("");
 
     const [productVariantId, setProductVariantId] = useState(null);
-    const [editClicked, setEditClicked] = useState(false);
     const [editIndex, setEditIndex] = useState(null);
 
     const [type, setType] = useState("");
@@ -98,6 +97,9 @@ const CreateNewProduct = () => {
             fetchProductDetails(productId);
         }
     }, [productId])
+
+    
+
 
     const fetchAllUnits = async () => {
         await getAllUnits()
@@ -183,7 +185,7 @@ const CreateNewProduct = () => {
 
     }
 
-    const fetchProductDetails = async (prodId) => {
+    const fetchProductDetails = async(prodId) => {
 
         let toInput = {
             _id: prodId,
@@ -197,6 +199,8 @@ const CreateNewProduct = () => {
                     let pDetails = data.data[0];
                     setPId(pDetails._id);
                     setProductName(pDetails.productName);
+                    setProductDescription(pDetails.productDesc);
+                    setTags(pDetails.productTags);
                     setUnitId(pDetails.unitID._id);
                     setCategoryId(pDetails.catID._id);
                     setHsnCode(pDetails.hsnCode);
@@ -217,6 +221,7 @@ const CreateNewProduct = () => {
             .catch(error => {
                 toast.current.show({ life: 3000, severity: 'error', summary: error });
             });
+            return "Hello";
     }
 
     const handleEnterDetails = () => {
@@ -375,7 +380,7 @@ const CreateNewProduct = () => {
                     toast.current.show({ life: 3000, severity: 'success', summary: data.message });
                     clearPrevVariantValues();
                     setEditIndex(null);
-                    setEditClicked(false);
+                    fetchProductDetails(pId);
                 }
                 if (response.status === 422) {
                     toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
@@ -803,6 +808,7 @@ const CreateNewProduct = () => {
                                     <AccordionTab header="Product Variant Details">
 
                                         <div>
+
                                             <Row style={{ fontSize: FontSize.smallMedium }}>
                                                 <Col md={3}>
                                                     <Form.Group className="mb-3" controlId="formCategory">
@@ -859,6 +865,7 @@ const CreateNewProduct = () => {
                                                 </Col>
 
                                             </Row>
+
                                             <Row>
                                                 {variantLoading ?
                                                     <ProgressSpinner style={{ width: '25px', height: '25px' }} />
@@ -1202,10 +1209,10 @@ const CreateNewProduct = () => {
                                                                                 {editIndex === index ?
                                                                                     <>
                                                                                         <Button size="sm" variant="outline-primary" onClick={() => { handleUpdateProductVariant(data._id); }}>Update</Button>
-                                                                                        <Button size="sm" variant="outline-secondary" onClick={() => { setEditClicked(false); setEditIndex(null); clearPrevVariantValues(); }}>Cancel</Button>
+                                                                                        <Button size="sm" variant="outline-secondary" onClick={() => { setEditIndex(null); clearPrevVariantValues(); }}>Cancel</Button>
                                                                                     </>
                                                                                     :
-                                                                                    <Button size="sm" variant="outline-primary" onClick={() => { handleEditProductVariant(data._id); setEditClicked(true); setEditIndex(index); }}>Edit</Button>
+                                                                                    <Button size="sm" variant="outline-primary" onClick={() => { handleEditProductVariant(data._id); setEditIndex(index); }}>Edit</Button>
                                                                                 }
                                                                                 {(prevInputFields.length >= 1) ? <Button size="sm" variant="outline-danger" onClick={() => { handleDelete(data._id, "variant") }}>Delete</Button> : ''}
                                                                             </Col>
@@ -1219,6 +1226,8 @@ const CreateNewProduct = () => {
                                                     </>
                                                 }
                                             </Row>
+
+
                                         </div>
 
                                     </AccordionTab>

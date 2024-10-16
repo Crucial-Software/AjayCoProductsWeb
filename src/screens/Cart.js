@@ -53,16 +53,8 @@ export default function Cart() {
     const incrementQuantity = (pItem) => {
         let item = {
             _id: pItem._id,
-            //price: pItem.price,
-            quantity: parseInt(pItem.quantity) + 6,
-            //incrementQuantity: 6,
-            //unitID: pItem.unitID._id,
-            //variantID: pItem.variantID._id,
+            quantity: parseInt(pItem.quantity) + (pItem.variantID? pItem.variantID.quantityIncreament : 0),
             userID: loginid,
-            //iGSTper: 18,
-            //sGSTper: 9,
-            //cGSTper: 9,
-            //status: pItem.status
         }
         dispatch(incrementItemQuantity(item));
     }
@@ -70,16 +62,8 @@ export default function Cart() {
     const decrementQuantity = (pItem) => {
         let item = {
             _id: pItem._id,
-            //price: pItem.price,
-            quantity: parseInt(pItem.quantity) - 6,
-            //incrementQuantity: 6,
-            //unitID: pItem.unitID._id,
-            //variantID: pItem.variantID._id,
+            quantity: parseInt(pItem.quantity) - (pItem.variantID? pItem.variantID.quantityIncreament : 0),
             userID: loginid,
-            //iGSTper: 18,
-            //sGSTper: 9,
-            //cGSTper: 9,
-            //status: pItem.status
         }
         if (parseInt(pItem.quantity) - 6 === 0) {
             setShow(true);
@@ -267,17 +251,19 @@ export default function Cart() {
                         <>
                             {cart.length !== 0 ?
                                 cart.map((item, index) => (
-                                    <Row key={index + 1} className="product-cart d-flex align-items-center" style={{ backgroundColor: Colors.white, padding: 5, fontSize: 14, textAlign: "center", color: Colors.darkGrey }}>
+                                    <Row key={index} className="product-cart d-flex align-items-center" style={{ backgroundColor: Colors.white, padding: 5, fontSize: 14, textAlign: "center", color: Colors.darkGrey }}>
                                         <Col sm={4}>
                                             <div className="product-img">
-                                                <img src={`${API_BASE}/images/category/category_1726663680324.png`} alt="product_image" height={75} />
+                                                <img src={`${API_BASE}/images/products/${item.variantID.productID.productImages[0].productImageLink}`} alt="product_image" height={75} />
                                             </div>
                                             <div className="display-tc">
                                                 <p>{item.variantID ? item.variantID.productID.productName : null}</p>
                                                 <span style={{ fontSize: 12 }}>{item.SKU}</span>
                                             </div>
                                         </Col>
-                                        <Col sm={2} style={{ wordBreak: "break-all" }}>{item.variantID ? item.variantID._id : null}</Col>
+                                        <Col sm={2} style={{ wordBreak: "break-all" }}>
+                                            {item.variantID? item.variantID.variantOptions[0].featureOptionID.featureOptionName : null }
+                                        </Col>
                                         <Col sm={1}>₹ {(item.price).toFixed(2)}</Col>
                                         <Col sm={2}>
                                             <Image

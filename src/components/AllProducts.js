@@ -52,8 +52,8 @@ export default function AllProducts({ show, id }) {
                                 <Card.Footer>
                                     {/* <Card.Title style={{ color: Colors.black, fontWeight: "normal", fontSize: 16, }}>₹ {item.price.toFixed(2)}</Card.Title> */}
                                     <Card.Title style={{ color: Colors.black, fontWeight: "normal", fontSize: 16, }}>
-                                        <span style={{ textDecoration: 'line-through', color: Colors.lightGrey, marginRight: 10, }}>₹ regularPrice</span>
-                                        <span>₹ offerPrice</span>
+                                        {/* <span style={{ textDecoration: 'line-through', color: Colors.lightGrey, marginRight: 10, }}>₹ regularPrice</span> */}
+                                        <span>₹ {item.priceRange.replace("to", '- ₹')}</span>
                                     </Card.Title>
                                 </Card.Footer>
                             </Card>
@@ -63,6 +63,12 @@ export default function AllProducts({ show, id }) {
                             </Row>
                         }
 
+                        {products.length == 0 ?
+                            <Row>
+                                <p style={{ padding: 20, textAlign: "center", marginBottom: 50, color: Colors.darkGrey, }}>No products found</p>
+                            </Row> :
+                            null
+                        }
                     </>
                 }
             </Row>

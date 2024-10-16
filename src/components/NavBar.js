@@ -14,9 +14,9 @@ export default function NavBar() {
     const location = useLocation();
     const [url, setUrl] = useState(null);
 
+    //const [searchVal, setSearchVal] = useState("");
+
     const [categoryList, setCategoryList] = useState([]);
-    // const [showShopDropdown, setShowShopDropdown] = useState(false);
-    // const [showLoginDropdown, setShowLoginDropdown] = useState(false);
 
     const loginid = localStorage.getItem("userLoginId");
     const name = localStorage.getItem("userName");
@@ -51,6 +51,18 @@ export default function NavBar() {
     const checkLogout = () => {
         localStorage.clear();
         navigate('/login');
+    }
+
+    const handleSearchFormSubmit = () => {
+        // if (searchVal === "") { 
+        //     setProducts(productList); 
+        //     return; 
+        // }
+        // const filterBySearch = productList.filter((item) => {
+        //     if (item.toLowerCase()
+        //         .includes(searchVal.toLowerCase())) { return item; }
+        // })
+        // setProducts(filterBySearch);
     }
 
     return (
@@ -98,12 +110,13 @@ export default function NavBar() {
                                     }
                                 </Nav>
                             </Navbar.Collapse>
-                            <Form className="d-flex align-items-center">
+                            <Form className="d-flex align-items-center" onSubmit={handleSearchFormSubmit}>
                                 <Form.Control
                                     type="search"
                                     placeholder="Search"
                                     className="me-2"
                                     aria-label="Search"
+                                    required
                                 />
                                 <Button
                                     variant="outline-secondary"

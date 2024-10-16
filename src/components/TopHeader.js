@@ -10,7 +10,7 @@ export default function TopHeader() {
                 <Row>
                     <Col md={4} style={{ justifyContent: "center", textAlign: "center" }}>
                         <i className="icon-location" style={{ fontSize: 12, color: Colors.golden, marginTop: 5 }} />
-                        <span style={{ fontSize: 12, color: Colors.white }}> &nbsp; Factory No. 47, Khatipura, Dist., Jhunjhnu, Rajasthan, India - 332746 </span>
+                        <span style={{ fontSize: 12, color: Colors.white }}> &nbsp; Jhunjhnu, Rajasthan, India </span>
                     </Col>
                     <Col md={4} style={{ justifyContent: "center", textAlign: "center" }}>
                         <i className="icon-phone3" style={{ fontSize: 12, color: Colors.golden, marginTop: 5 }} />
