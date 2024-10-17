@@ -144,6 +144,14 @@ const Sidebar = () => {
                             <div></div>
                         }
 
+                        <span style={{ fontWeight: "bold" }}>
+                            <Link to="/orders">
+                                <CDBSidebarMenuItem icon="fa fa-cubes" iconSize="sm" textFontSize="14px" >
+                                    Orders
+                                </CDBSidebarMenuItem>
+                            </Link>
+                        </span>
+
                     </CDBSidebarMenu>
                 </CDBSidebarContent>
 

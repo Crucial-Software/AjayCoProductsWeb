@@ -62,10 +62,10 @@ export default function Cart() {
     const decrementQuantity = (pItem) => {
         let item = {
             _id: pItem._id,
-            quantity: parseInt(pItem.quantity) - (pItem.variantID? pItem.variantID.quantityIncreament : 0),
+            quantity: parseInt(pItem.quantity) - parseInt(pItem.variantID? pItem.variantID.quantityIncreament : 0),
             userID: loginid,
         }
-        if (parseInt(pItem.quantity) - 6 === 0) {
+        if (parseInt(pItem.quantity) - parseInt(pItem.variantID? pItem.variantID.quantityIncreament : 0) === 0) {
             setShow(true);
             setSelectedItemToRemove(pItem._id);
         } else {
@@ -254,15 +254,19 @@ export default function Cart() {
                                     <Row key={index} className="product-cart d-flex align-items-center" style={{ backgroundColor: Colors.white, padding: 5, fontSize: 14, textAlign: "center", color: Colors.darkGrey }}>
                                         <Col sm={4}>
                                             <div className="product-img">
-                                                <img src={`${API_BASE}/images/products/${item.variantID.productID.productImages[0].productImageLink}`} alt="product_image" height={75} />
+                                                {item.variantID.productID.productImages?
+                                                    <img src={`${API_BASE}/images/products/${item.variantID.productID.productImages[0].productImageLink}`} alt="product_image" height={75} />
+                                                    :null
+                                                }
+                                                
                                             </div>
                                             <div className="display-tc">
-                                                <p>{item.variantID ? item.variantID.productID.productName : null}</p>
+                                                <p>{item.variantID.productID ? item.variantID.productID.productName : null}</p>
                                                 <span style={{ fontSize: 12 }}>{item.SKU}</span>
                                             </div>
                                         </Col>
                                         <Col sm={2} style={{ wordBreak: "break-all" }}>
-                                            {item.variantID? item.variantID.variantOptions[0].featureOptionID.featureOptionName : null }
+                                            {item.variantID.variantOptions? item.variantID.variantOptions[0].featureOptionID.featureOptionName : null }
                                         </Col>
                                         <Col sm={1}>₹ {(item.price).toFixed(2)}</Col>
                                         <Col sm={2}>

@@ -33,6 +33,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 //import Check from './screens/admin/Check';
 import ManageProducts from './screens/admin/ManageProducts';
 import CreateNewProduct from './screens/admin/CreateNewProduct';
+import Orders from './screens/admin/Orders';
 
 function App() {
 
@@ -74,6 +75,7 @@ function App() {
         <Route path="/managefeatureoptions" element={<PrivateRoute Component={ManageFeatureOptions} userRole={"admin"} />} />
         <Route path="/manageproducts" element={<PrivateRoute Component={ManageProducts} userRole={"admin"} />} />
         <Route path="/createnewproduct" element={<PrivateRoute Component={CreateNewProduct} userRole={"admin"} />} />
+        <Route path="/orders" element={<PrivateRoute Component={Orders} userRole={"admin"} />} />
       </Routes>
     </BrowserRouter>
   );

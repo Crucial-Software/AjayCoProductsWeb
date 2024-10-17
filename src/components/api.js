@@ -788,6 +788,7 @@ export const updateInCart = async (toInput) => {
     }
 }
 
+//ORDER MASTER
 export const createOrderMaster = async (toInput) => {
     try {
         const response = await fetch(`${API_BASE}/createorder`, {
@@ -798,6 +799,31 @@ export const createOrderMaster = async (toInput) => {
         return response;
     } catch (error) {
         console.error("api - createOrderMaster error: " + error);
+    }
+}
+
+export const getOrderMasterList = async () => {
+    try {
+        const response = await fetch(`${API_BASE}/listorders`, {
+            headers: { 'Content-Type': 'application/json' },
+        });
+        return response;
+    } catch (error) {
+        console.error("api - getOrderMasterList error: " + error);
+    }
+}
+
+//CUSTOMER ADDRESSES
+export const getCustomerAddresses = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/findcustomeradds`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - getCustomerAddresses error: " + error);
     }
 }
 

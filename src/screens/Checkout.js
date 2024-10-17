@@ -2,12 +2,13 @@ import React, { useEffect, useState, useRef } from 'react'
 import TopHeader from '../components/TopHeader'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
-import { Form, Container, Col, Row, Button } from 'react-bootstrap'
-import { Colors } from '../common/ConstantStyles'
+import { Form, Container, Col, Row, Button, Image } from 'react-bootstrap'
+import { Colors, FontSize } from '../common/ConstantStyles'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import { createOrderMaster, getAllCitiesByStateId, getAllStates } from '../components/api'
+import { createOrderMaster, getAllCitiesByStateId, getAllStates, getCustomerAddresses } from '../components/api'
 import { useRazorpay } from "react-razorpay";
 import { Toast } from 'primereact/toast';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function Checkout() {
 
@@ -18,6 +19,8 @@ export default function Checkout() {
     const navigate = useNavigate();
     let { state } = useLocation();
     const orderTotal = state.orderTotal;
+
+    const [loading, setLoading] = useState(false);
 
     const loginId = localStorage.getItem("userLoginId");
     const userName = localStorage.getItem("userName");
@@ -30,17 +33,19 @@ export default function Checkout() {
     const [email, setEmail] = useState("");
     const [companyName, setCompanyName] = useState("");
     const [addressName, setAddressName] = useState("");
-    const [addressType, setAddressType] = useState("Residence Address")
+    const [addressType, setAddressType] = useState("")
     const [address, setAddress] = useState("");
-    const [area, setArea] = useState("");
     const [pincode, setPincode] = useState("");
     const [additionalInformation, setAdditionalInformation] = useState("");
     const [termsAndConditions, setTermsAndConditions] = useState(false);
 
     const [states, setStates] = useState([]);
-    const [stateValue, setStateValue] = useState("- Select State -");
+    const [stateValue, setStateValue] = useState();
     const [cities, setCities] = useState([]);
-    const [cityValue, setCityValue] = useState("- Select City -");
+    const [cityValue, setCityValue] = useState();
+
+    const [customerAddressesList, setCustomerAddressesList] = useState([]);
+    const [selectedCustomerAddressId, setSelectedCustomerAddressId] = useState(null);
 
     useEffect(() => {
         window.scrollTo({
@@ -52,7 +57,8 @@ export default function Checkout() {
         setName(userName);
         setMobile(userMobile);
         setEmail(userEmail);
-    }, [userName, userMobile, userEmail])
+        fetchCustomerAddresses(customerId);
+    }, [userName, userMobile, userEmail, customerId]);
 
     const fetchAllStates = async () => {
         await getAllStates()
@@ -89,12 +95,38 @@ export default function Checkout() {
             });
     }
 
+    const fetchCustomerAddresses = async (cId) => {
+        setLoading(true);
+        let toInput = {
+            customerID: "66ec04c6ad238bb7385160d0"
+            //customerID: cId
+        };
+        await getCustomerAddresses(toInput)
+            .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson && await response.json();
+                setLoading(false);
+                if (response.ok) {
+                    setCustomerAddressesList(data.data);
+                } else {
+                    toast.current.show({ life: 3000, severity: 'error', summary: 'Error in loading customer addresses' });
+                }
+            })
+            .catch(error => {
+                setLoading(false);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
+            });
+    }
+
     const checkCheckoutData = async (event) => {
         event.preventDefault();
 
         let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;  // eslint-disable-line
 
-        if (pincode.length !== 6) {
+        if (addressType === "") {
+            toast.current.show({ life: 3000, severity: 'error', summary: 'Please select address type' });
+        }
+        else if (pincode.length !== 6) {
             toast.current.show({ life: 3000, severity: 'error', summary: 'Enter a valid 6 digit pincode' });
         }
         else if (reg.test(email) === false) {
@@ -122,7 +154,6 @@ export default function Checkout() {
             //     " companyName: " + companyName +
             //     " addressName: " + addressName +
             //     " address: " + address +
-            //     " area: " + area +
             //     " pincode: " + pincode +
             //     " additionalInformation: " + additionalInformation +
             //     " stateValue: " + stateValue +
@@ -279,6 +310,33 @@ export default function Checkout() {
         }
     }
 
+    const handleCustomerAddressClicked = async (addId) => {
+        setSelectedCustomerAddressId(addId);
+        var selCustomerAddress = customerAddressesList.filter(function (v, i) {
+            if (v._id === addId) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        let cAdd = selCustomerAddress[0];
+        setAddressType(cAdd.addType);
+        setAddressName(cAdd.addName);
+        setAddress(cAdd.addLine1);
+        setPincode(cAdd.pinCode + '');
+        setStateValue(cAdd.stateID._id);
+    }
+
+    const clearAddressValues = () => {
+        setSelectedCustomerAddressId(null);
+        setAddressType();
+        setAddressName("");
+        setAddress("");
+        setPincode("");
+        setStateValue("- Select State -");
+        setStateValue("- Select City -");
+    }
+
     return (
         <>
 
@@ -317,191 +375,218 @@ export default function Checkout() {
 
                                 <div className="row" style={{ marginTop: 20 }}>
 
-                                    <Form.Group as={Row} className="mb-3">
-                                        <Col md style={{ fontSize: 14 }}>
-                                            <Form.Check
-                                                inline
-                                                type="radio"
-                                                label="Residence Address"
-                                                value="Residence Address"
-                                                name="AddressType"
-                                                onChange={e => setAddressType(e.target.value)}
-                                                checked={addressType === "Residence Address"}
-                                            />
-                                            <Form.Check
-                                                inline
-                                                type="radio"
-                                                label="Company Address"
-                                                value="Company Address"
-                                                name="AddressType"
-                                                onChange={e => setAddressType(e.target.value)}
-                                                checked={addressType === "Company Address"}
-                                            />
-                                        </Col>
-                                    </Form.Group>
+                                    <Row style={{ justifyContent: "center", alignContent: "center", alignItems: "center" }}>
 
-                                    <Row>
-                                        <Form.Group className="mb-2" controlId="formGroupEmail">
-                                            <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Full Name <span style={{ color: "red" }}>*</span></Form.Label>
-                                            <Form.Control
-                                                size="lg"
-                                                value={name}
-                                                onChange={e => { setName(e.target.value) }}
-                                                required
-                                            />
-                                        </Form.Group>
+                                        {loading ?
+
+                                            <Row style={{ justifyContent: "center", alignContent: "center" }}>
+                                                <ProgressSpinner style={{ width: '25px', height: '25px' }} />
+                                            </Row>
+                                            :
+                                            <>
+                                                {customerAddressesList.length === 0 ? null : <p style={{ fontSize: FontSize.small, fontWeight: "bold" }}>Your saved Addresses</p>}
+
+                                                {customerAddressesList.map((data, key) =>
+
+                                                    <Col md style={{ fontSize: FontSize.small }} key={data._id} onClick={() => { handleCustomerAddressClicked(data._id) }}>
+                                                        <div className={selectedCustomerAddressId === data._id ? "customerAddressSelected" : "customerAddress"}>
+                                                            <span style={{ fontWeight: "bold" }}>{data.addType ? data.addType : ""}</span><br />
+                                                            {data.addName ? data.addName : ""} <br />
+                                                            {data.addLine1 ? data.addLine1 : ""} <br />
+                                                            {data.cityID ? data.cityID.cityName : ""} <br />
+                                                            {data.stateID ? data.stateID.stateName : ""} <br />
+                                                            {data.pinCode ? data.pinCode : ""}
+                                                        </div>
+                                                    </Col>
+
+                                                )}
+                                                {customerAddressesList.length === 0 ? null :
+                                                    <Col onClick={() => { clearAddressValues() }}>
+                                                        <div className="customerAddressImage">
+                                                            <Image src="../images/add.png" alt='gradient' height={50} />
+                                                        </div>
+                                                    </Col>
+                                                }
+                                            </>
+                                        }
+
                                     </Row>
 
-                                    <Row>
-                                        <Form.Group className="mb-2" controlId="formGroupEmail">
-                                            <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Company Name <span style={{ color: "red" }}>*</span></Form.Label>
-                                            <Form.Control
-                                                size="lg"
-                                                value={companyName}
-                                                onChange={e => { setCompanyName(e.target.value) }}
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Row>
+                                    <div>
 
-                                    <Row>
-                                        <Form.Group className="mb-2" controlId="formGroupEmail">
-                                            <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Address Name<span style={{ color: "red" }}>*</span></Form.Label>
-                                            <Form.Control
-                                                size="lg"
-                                                value={addressName}
-                                                onChange={e => { setAddressName(e.target.value) }}
-                                                required
-                                            />
+                                        <Form.Group as={Row} className="mb-3 mt-4">
+                                            <Col md style={{ fontSize: 14 }}>
+                                                <Form.Check
+                                                    inline
+                                                    type="radio"
+                                                    label="Residence Address"
+                                                    value="Residence Address"
+                                                    name="AddressType"
+                                                    onChange={e => setAddressType(e.target.value)}
+                                                />
+                                                <Form.Check
+                                                    inline
+                                                    type="radio"
+                                                    label="Company Address"
+                                                    value="Company Address"
+                                                    name="AddressType"
+                                                    onChange={e => setAddressType(e.target.value)}
+                                                />
+                                            </Col>
                                         </Form.Group>
-                                    </Row>
 
-                                    <Row>
-                                        <Form.Group className="mb-2" controlId="formGroupEmail">
-                                            <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Address <span style={{ color: "red" }}>*</span></Form.Label>
-                                            <Form.Control
-                                                size="lg"
-                                                value={address}
-                                                onChange={e => { setAddress(e.target.value) }}
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Row>
-
-                                    <Row>
-                                        <Col>
+                                        <Row>
                                             <Form.Group className="mb-2" controlId="formGroupEmail">
-                                                <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Area <span style={{ color: "red" }}>*</span></Form.Label>
+                                                <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Full Name <span style={{ color: "red" }}>*</span></Form.Label>
                                                 <Form.Control
                                                     size="lg"
-                                                    value={area}
-                                                    onChange={e => { setArea(e.target.value) }}
+                                                    value={name}
+                                                    onChange={e => { setName(e.target.value) }}
                                                     required
                                                 />
                                             </Form.Group>
-                                        </Col>
-                                        <Col>
+                                        </Row>
+
+                                        <Row>
+                                            <Col>
+                                                <Form.Group className="mb-2" controlId="formGroupEmail">
+                                                    <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Company Name</Form.Label>
+                                                    <Form.Control
+                                                        size="lg"
+                                                        value={companyName}
+                                                        onChange={e => { setCompanyName(e.target.value) }}
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                            <Col>
+                                                <Form.Group className="mb-2" controlId="formGroupEmail">
+                                                    <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Address Name<span style={{ color: "red" }}>*</span></Form.Label>
+                                                    <Form.Control
+                                                        size="lg"
+                                                        value={addressName}
+                                                        onChange={e => { setAddressName(e.target.value) }}
+                                                        required
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>
+
+                                        <Row>
                                             <Form.Group className="mb-2" controlId="formGroupEmail">
-                                                <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Pincode <span style={{ color: "red" }}>*</span></Form.Label>
+                                                <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Address <span style={{ color: "red" }}>*</span></Form.Label>
                                                 <Form.Control
                                                     size="lg"
-                                                    value={pincode}
-                                                    type="tel"
-                                                    maxLength="6"
-                                                    onChange={e => { setPincode(e.target.value.replace(/\D/g, "")) }}
+                                                    value={address}
+                                                    onChange={e => { setAddress(e.target.value) }}
                                                     required
                                                 />
                                             </Form.Group>
-                                        </Col>
-                                    </Row>
+                                        </Row>
 
-                                    <Row>
-                                        <Col>
+                                        <Row>
+                                            <Col>
+                                                <Form.Group>
+                                                    <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>State <span style={{ color: "red" }}>*</span></Form.Label>
+                                                    <Form.Control
+                                                        as="select"
+                                                        className="rounded-3"
+                                                        style={{ fontSize: 12 }}
+                                                        value={stateValue}
+                                                        onChange={e => { setStateValue(e.target.value); getCitiesDropdownList(e.target.value); setCityValue("- Select City -"); }}
+                                                    >
+                                                        <option value="- Select State -" id="- Select State -">- Select State -</option>
+                                                        {states.map((data, key) => <option key={data._id} value={data._id}>{data.stateName}</option>)}
+                                                    </Form.Control>
+                                                </Form.Group>
+                                            </Col>
+                                            <Col>
+                                                <Form.Group>
+                                                    <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>City <span style={{ color: "red" }}>*</span></Form.Label>
+                                                    <Form.Control
+                                                        as="select"
+                                                        className="rounded-3"
+                                                        style={{ fontSize: 12 }}
+                                                        value={cityValue}
+                                                        onChange={e => { setCityValue(e.target.value); }}
+                                                    >
+                                                        <option value="- Select City -">- Select City -</option>
+                                                        {cities.map((data, key) => <option key={data._id} value={data._id} >{data.cityName}</option>)}
+                                                    </Form.Control>
+                                                </Form.Group>
+                                            </Col>
+                                            <Col>
+                                                <Form.Group className="mb-2" controlId="formGroupEmail">
+                                                    <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Pincode <span style={{ color: "red" }}>*</span></Form.Label>
+                                                    <Form.Control
+                                                        size="lg"
+                                                        value={pincode}
+                                                        type="tel"
+                                                        maxLength="6"
+                                                        onChange={e => { setPincode(e.target.value.replace(/\D/g, "")) }}
+                                                        required
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                            {/* <Col>
+                                                <Form.Group className="mb-2" controlId="formGroupEmail">
+                                                    <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Country <span style={{ color: "red" }}>*</span></Form.Label>
+                                                    <Form.Control
+                                                        size="lg"
+                                                        placeholder="India"
+                                                        disabled
+                                                    />
+                                                </Form.Group>
+                                            </Col> */}
+                                        </Row>
+
+                                        <Row>
+
+                                            <Col>
+                                                <Form.Group className="mb-2" controlId="formGroupEmail">
+                                                    <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Email Id <span style={{ color: "red" }}>*</span></Form.Label>
+                                                    <Form.Control
+                                                        size="lg"
+                                                        type="email"
+                                                        value={email}
+                                                        onChange={e => { setEmail(e.target.value) }}
+                                                        required
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+
+                                            <Col>
+                                                <Form.Group className="mb-2" controlId="formGroupEmail">
+                                                    <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Mobile <span style={{ color: "red" }}>*</span></Form.Label>
+                                                    <Form.Control
+                                                        size="lg"
+                                                        type="tel"
+                                                        maxLength="10"
+                                                        value={mobile}
+                                                        onChange={e => { setMobile(e.target.value.replace(/\D/g, "")) }}
+                                                        required
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+
+                                        </Row>
+
+
+
+                                        <Row>
                                             <Form.Group className="mb-2" controlId="formGroupEmail">
-                                                <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Email Id <span style={{ color: "red" }}>*</span></Form.Label>
+                                                <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Additional Information</Form.Label>
                                                 <Form.Control
                                                     size="lg"
-                                                    type="email"
-                                                    value={email}
-                                                    onChange={e => { setEmail(e.target.value) }}
-                                                    required
+                                                    as="textarea"
+                                                    rows={5}
+                                                    placeholder="Notes about your order or any special notes for delivery"
+                                                    value={additionalInformation}
+                                                    onChange={e => { setAdditionalInformation(e.target.value) }}
                                                 />
                                             </Form.Group>
-                                        </Col>
+                                        </Row>
 
-                                        <Col>
-                                            <Form.Group className="mb-2" controlId="formGroupEmail">
-                                                <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Mobile <span style={{ color: "red" }}>*</span></Form.Label>
-                                                <Form.Control
-                                                    size="lg"
-                                                    type="tel"
-                                                    maxLength="10"
-                                                    value={mobile}
-                                                    onChange={e => { setMobile(e.target.value.replace(/\D/g, "")) }}
-                                                    required
-                                                />
-                                            </Form.Group>
-                                        </Col>
-
-                                    </Row>
-
-                                    <Row>
-                                        <Col>
-                                            <Form.Group>
-                                                <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>State <span style={{ color: "red" }}>*</span></Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    className="rounded-3"
-                                                    style={{ fontSize: 12 }}
-                                                    value={stateValue}
-                                                    onChange={e => { setStateValue(e.target.value); getCitiesDropdownList(e.target.value); setCityValue(null); }}
-                                                >
-                                                    <option value="- Select State -" id="- Select State -">- Select State -</option>
-                                                    {states.map((data, key) => <option key={data._id} value={data._id}>{data.stateName}</option>)}
-                                                </Form.Control>
-                                            </Form.Group>
-                                        </Col>
-                                        <Col>
-                                            <Form.Group>
-                                                <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>City <span style={{ color: "red" }}>*</span></Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    className="rounded-3"
-                                                    style={{ fontSize: 12 }}
-                                                    value={cityValue}
-                                                    onChange={e => { setCityValue(e.target.value); }}
-                                                >
-                                                    <option value="- Select City -">- Select City -</option>
-                                                    {cities.map((data, key) => <option key={data._id} value={data._id} >{data.cityName}</option>)}
-                                                </Form.Control>
-                                            </Form.Group>
-                                        </Col>
-                                        <Col>
-                                            <Form.Group className="mb-2" controlId="formGroupEmail">
-                                                <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Country <span style={{ color: "red" }}>*</span></Form.Label>
-                                                <Form.Control
-                                                    size="lg"
-                                                    placeholder="India"
-                                                    disabled
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-
-                                    <Row >
-                                        <Form.Group className="mb-2" controlId="formGroupEmail">
-                                            <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Additional Information <span style={{ color: "red" }}>*</span></Form.Label>
-                                            <Form.Control
-                                                size="lg"
-                                                as="textarea"
-                                                rows={5}
-                                                placeholder="Notes about your order or any special notes for delivery"
-                                                value={additionalInformation}
-                                                onChange={e => { setAdditionalInformation(e.target.value) }}
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Row>
+                                    </div>
 
                                 </div>
 
@@ -584,6 +669,7 @@ export default function Checkout() {
                                             <Col md style={{ fontSize: 14 }}>
                                                 <Form.Check
                                                     checked
+                                                    disabled
                                                     type="radio"
                                                     label="UPI/Cards/Net Banking/Wallet"
                                                     value="UPI/Cards/Net Banking/Wallet"

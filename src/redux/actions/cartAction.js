@@ -23,18 +23,24 @@ export const fetchCartItems = (input) => dispatch => {
 
 export const addItemToCart = (item) => dispatch => {
 
+    console.log("Add to cart else cart Action");
+
     const response = addToCart(item)
         .then(async response => {
             const isJson = response.headers.get('content-type')?.includes('application/json');
             const data = isJson && await response.json();
             if (response.ok) {
+                console.log("Add to cart else cart Action resp: ok");
                 dispatch({
                     type: Constants.ADD_ITEM_TO_CART,
                     payload: data.data,
                     loading: false,
                 })
+            } else{
+                console.log("Add to cart else cart Action resp: error some other error");
             }
             if (response.status === 400) {
+                console.log("Add to cart else cart Action resp: error 400");
                 dispatch({
                     type: Constants.ADD_ITEM_TO_CART,
                     payload: JSON.stringify(data.message),

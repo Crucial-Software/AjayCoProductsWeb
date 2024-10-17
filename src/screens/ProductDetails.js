@@ -128,6 +128,8 @@ export default function ProductDetails() {
 
     const addToCart = () => {
 
+        
+
         if (minimumQuantity === 0) {
             setShowAlert(true);
             setAlertVariant("danger");
@@ -136,8 +138,9 @@ export default function ProductDetails() {
         } else if (loginid === null) {
             navigate('/login');
         } else {
-            setMinimumQuantity(0);
-            setSelectedVariant(null);
+            console.log("Add to cart else product details");
+           // setMinimumQuantity(0);
+            //setSelectedVariant(null);
             let item = {
                 quantity: minimumQuantity,
                 unitID: productDetails.unitID._id,
@@ -183,7 +186,7 @@ export default function ProductDetails() {
                         </Row>
                         :
                         <>
-                            <Row>
+                            <Row className="align-items-center">
                                 <Col className="justify-content-md-center">
                                     {itemImages.length !== 0 ?
                                         <Galleria
@@ -202,7 +205,7 @@ export default function ProductDetails() {
                                         </Row>
                                     }
                                 </Col>
-                                <Col >
+                                <Col>
                                     <Row>
                                         <Col>
                                             <Form.Label style={{ fontSize: 25, color: Colors.black, fontWeight: 400 }}>
