@@ -72,3 +72,17 @@ p {
     width: 100%;
     height: 100%;
   }
+
+  .img-wrapper {
+    overflow: hidden;
+  }
+
+  .p-galleria .p-galleria-thumbnail-container {
+    background-color: #f0f0f0 !important;
+    padding: 10px;
+    border-radius: 5px;
+  }
+
+  .p-galleria .p-galleria-thumbnail-container .p-galleria-thumbnail-prev, .p-galleria .p-galleria-thumbnail-container .p-galleria-thumbnail-next{
+    color: #000;
+  }

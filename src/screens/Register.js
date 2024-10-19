@@ -136,10 +136,10 @@ export default function Register() {
                                     </Form.Group>
 
                                     <Form.Group className="mb-3" controlId="formGroupEmail">
-                                        <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Full Name <span style={{ color: "red" }}>*</span></Form.Label>
+                                        <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Billing Name <span style={{ color: "red" }}>*</span></Form.Label>
                                         <Form.Control
                                             size="lg"
-                                            placeholder="Enter your business name"
+                                            placeholder="Enter your billing name"
                                             value={name}
                                             onChange={e => { setName(e.target.value) }}
                                             required

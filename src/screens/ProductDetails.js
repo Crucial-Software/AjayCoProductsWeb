@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import TopHeader from '../components/TopHeader'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
@@ -13,6 +13,7 @@ import { getProductById } from '../components/api'
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { API_BASE } from '../components/urlLink';
 import { Galleria } from 'primereact/galleria';
+import { Image } from 'primereact/image';
 
 export default function ProductDetails() {
 
@@ -128,8 +129,6 @@ export default function ProductDetails() {
 
     const addToCart = () => {
 
-        
-
         if (minimumQuantity === 0) {
             setShowAlert(true);
             setAlertVariant("danger");
@@ -139,7 +138,7 @@ export default function ProductDetails() {
             navigate('/login');
         } else {
             console.log("Add to cart else product details");
-           // setMinimumQuantity(0);
+            // setMinimumQuantity(0);
             //setSelectedVariant(null);
             let item = {
                 quantity: minimumQuantity,
@@ -151,12 +150,15 @@ export default function ProductDetails() {
         }
     }
 
-    const itemTemplate = (item) => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const galleria = useRef(null);
+
+    const itemTemplate = (item, index) => {
         return <img
             src={`${API_BASE}/images/products/${item.productImageLink}`}
             onError={(e) => e.target.src = 'https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png'}
             alt={item.productImageLink}
-            // onClick={() => { navigate('/viewattachment', { state: { file: itemImages, } }); }}
+            onClick={() => { setActiveIndex(1); galleria.current.show() }}
             style={{ height: 450 }} />
     }
 
@@ -166,6 +168,15 @@ export default function ProductDetails() {
             onError={(e) => e.target.src = 'https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png'}
             alt={item.productImageLink}
             style={{ height: 75 }} />
+    }
+
+    const itemTemplate1 = (item) => {
+        console.log("Item: " + item);
+        return <img src={`${API_BASE}/images/products/${item.productImageLink}`} alt={item.productImageLink} style={{ width: '100%', display: 'block' }} />;
+    }
+
+    const thumbnailTemplate1 = (item) => {
+        return <img src={`${API_BASE}/images/products/${item.productImageLink}`} alt={item.productImageLink} style={{ display: 'block' }} />;
     }
 
     return (
@@ -189,16 +200,31 @@ export default function ProductDetails() {
                             <Row className="align-items-center">
                                 <Col className="justify-content-md-center">
                                     {itemImages.length !== 0 ?
-                                        <Galleria
-                                            value={itemImages}
-                                            numVisible={5}
-                                            item={itemTemplate}
-                                            thumbnail={thumbnailTemplate}
-                                            circular
-                                            autoPlay
-                                            showItemNavigators
-                                            transitionInterval={3000}
-                                        />
+                                        <>
+                                            {itemImages.length === 1 ?
+                                                itemImages.map((item, key) =>
+                                                    <Image src={`${API_BASE}/images/products/${item.productImageLink}`} alt={item.productImageLink} height="450" preview />
+                                                )
+                                                :
+                                                <>
+                                                    <Galleria ref={galleria} value={itemImages} numVisible={7} style={{ maxWidth: '850px' }}
+                                                        activeIndex={activeIndex} onItemChange={(e) => setActiveIndex(e.index)}
+                                                        circular fullScreen showItemNavigators showThumbnails={false} item={itemTemplate1} thumbnail={thumbnailTemplate1} />
+
+                                                    <Galleria
+                                                        value={itemImages}
+                                                        numVisible={7}
+                                                        item={itemTemplate}
+                                                        thumbnail={thumbnailTemplate}
+                                                        circular
+                                                        autoPlay
+                                                        showItemNavigators
+                                                        transitionInterval={3000}
+                                                    />
+                                                </>
+                                            }
+                                        </>
+
                                         :
                                         <Row>
                                             <p style={{ padding: 20, textAlign: "center", marginBottom: 50, color: Colors.darkGrey, }}>No Images Found</p>
