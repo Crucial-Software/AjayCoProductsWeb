@@ -97,7 +97,7 @@ export default function ProductDetails() {
                     setOfferPrice(data.data[0].productVariants[0].offerPrice);
                     setMinimumQuantity(data.data[0].productVariants[0].minimumQuantity);
                     setIncrementQuantityValue(data.data[0].productVariants[0].quantityIncreament);
-                    setFeatureOptionName(data.data[0].productVariants[0].variantOptions[0].featureOptionID.featureOptionName);
+                    setFeatureOptionName(data.data[0].productVariants? data.data[0].productVariants[0].variantOptions[0].featureOptionID.featureOptionName : "");
                 }
             })
             .catch(error => {
@@ -132,14 +132,11 @@ export default function ProductDetails() {
         if (minimumQuantity === 0) {
             setShowAlert(true);
             setAlertVariant("danger");
-            setAlertMessage("Please select Quantity");
+            setAlertMessage("Please select quantity");
             setTimeout(() => { setShowAlert(false) }, 2000);
         } else if (loginid === null) {
             navigate('/login');
         } else {
-            console.log("Add to cart else product details");
-            // setMinimumQuantity(0);
-            //setSelectedVariant(null);
             let item = {
                 quantity: minimumQuantity,
                 unitID: productDetails.unitID._id,
@@ -147,6 +144,10 @@ export default function ProductDetails() {
                 userID: loginid,
             }
             dispatch(addItemToCart(item));
+            setShowAlert(true);
+            setAlertVariant("success");
+            setAlertMessage("Added to cart");
+            setTimeout(() => { setShowAlert(false) }, 2000);
         }
     }
 

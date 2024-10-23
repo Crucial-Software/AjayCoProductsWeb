@@ -28,12 +28,12 @@ export default function ForgotPassword() {
     const checkMobileData = (event) => {
         event.preventDefault();
 
-        if (mobile && mobile.length === 10) {
+        if (mobile && mobile.length !== 10) {
+            toast.current.show({ life: 3000, severity: 'error', summary: "Enter a valid 10 digit mobile number" });
+        } else {
             setMobileScreen(false);
             setOtpScreen(true);
             setPasswordResetScreen(false);
-        } else {
-            toast.current.show({ life: 3000, severity: 'error', summary: "Enter a valid 10 digit mobile number" });
         }
 
     }

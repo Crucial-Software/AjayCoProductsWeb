@@ -53,7 +53,7 @@ export default function Cart() {
     const incrementQuantity = (pItem) => {
         let item = {
             _id: pItem._id,
-            quantity: parseInt(pItem.quantity) + (pItem.variantID? pItem.variantID.quantityIncreament : 0),
+            quantity: parseInt(pItem.quantity) + (pItem.variantID ? pItem.variantID.quantityIncreament : 0),
             userID: loginid,
         }
         dispatch(incrementItemQuantity(item));
@@ -62,10 +62,10 @@ export default function Cart() {
     const decrementQuantity = (pItem) => {
         let item = {
             _id: pItem._id,
-            quantity: parseInt(pItem.quantity) - parseInt(pItem.variantID? pItem.variantID.quantityIncreament : 0),
+            quantity: parseInt(pItem.quantity) - parseInt(pItem.variantID ? pItem.variantID.quantityIncreament : 0),
             userID: loginid,
         }
-        if (parseInt(pItem.quantity) - parseInt(pItem.variantID? pItem.variantID.quantityIncreament : 0) === 0) {
+        if (parseInt(pItem.quantity) - parseInt(pItem.variantID ? pItem.variantID.quantityIncreament : 0) === 0) {
             setShow(true);
             setSelectedItemToRemove(pItem._id);
         } else {
@@ -74,14 +74,14 @@ export default function Cart() {
 
     }
 
-    const handleConfirmOrder = async() => {
+    const handleConfirmOrder = async () => {
         if (cart.length === 0) {
             setShowNoItems(true);
         } else {
-           if(loginid){
-                if(role === "customer"){
+            if (loginid) {
+                if (role === "customer") {
                     navigate("/checkout", { state: { orderTotal: cart.reduce((acc, item) => acc += (item.price * item.quantity), 0) } })
-                } else{
+                } else {
                     let toInput = {
                         name: userName,
                         email: userEmail,
@@ -97,22 +97,22 @@ export default function Cart() {
                         orderStatus: "pending",
                         createdByid: loginid
                     };
-        
+
                     await createOrderMaster(toInput)
                         .then(async response => {
                             const isJson = response.headers.get('content-type')?.includes('application/json');
                             const data = isJson && await response.json();
 
                             console.log("data: " + data.status);
-        
+
                             if (!response.ok) {
-                                toast.current.show({life: 3000, severity: 'error', summary: data.error.undefined});
+                                toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                             }
-        
+
                             if (response.status === 422) {
-                                toast.current.show({life: 3000, severity: 'error', summary: data.error.undefined});
+                                toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
                             }
-        
+
                             if (data.status === "Success") {
                                 //console.log("Razorpay Process: " + JSON.stringify(data.data));
                                 //console.log("Amount: " + data.data.netAmount)
@@ -137,12 +137,12 @@ export default function Cart() {
                             }
                         })
                         .catch((error) => {
-                            toast.current.show({life: 3000, severity: 'error', summary: error});
+                            toast.current.show({ life: 3000, severity: 'error', summary: error });
                         });
                 }
-           } else{
+            } else {
                 navigate("/login");
-           }
+            }
         }
     }
 
@@ -254,11 +254,11 @@ export default function Cart() {
                                     <Row key={index} className="product-cart d-flex align-items-center" style={{ backgroundColor: Colors.white, padding: 5, fontSize: 14, textAlign: "center", color: Colors.darkGrey }}>
                                         <Col sm={4}>
                                             <div className="product-img">
-                                                {item.variantID.productID.productImages?
+                                                {item.variantID.productID.productImages ?
                                                     <img src={`${API_BASE}/images/products/${item.variantID.productID.productImages[0].productImageLink}`} alt="product_image" height={75} />
-                                                    :null
+                                                    : null
                                                 }
-                                                
+
                                             </div>
                                             <div className="display-tc">
                                                 <p>{item.variantID.productID ? item.variantID.productID.productName : null}</p>
@@ -266,7 +266,7 @@ export default function Cart() {
                                             </div>
                                         </Col>
                                         <Col sm={2} style={{ wordBreak: "break-all" }}>
-                                            {item.variantID.variantOptions? item.variantID.variantOptions[0].featureOptionID.featureOptionName : null }
+                                            {item.variantID.variantOptions ? item.variantID.variantOptions[0].featureOptionID.featureOptionName : null}
                                         </Col>
                                         <Col sm={1}>₹ {(item.price).toFixed(2)}</Col>
                                         <Col sm={2}>
@@ -322,30 +322,34 @@ export default function Cart() {
                         </Row>
                     </Col>
                     <Col lg={4}>
-                        <div className="cart-detail">
-                            <ul>
-                                <li>
-                                    <span>
-                                        <strong>Order Total</strong>
-                                    </span>
-                                    <span style={{ textAlign: "right" }}>
-                                        <strong>₹ {cart.reduce((acc, item) => acc += (item.price * item.quantity), 0).toFixed(2)}</strong>
-                                    </span>
-                                </li>
-                            </ul>
-                        </div>
+                        <Row style={{marginRight: 5}}>
+                            <div className="cart-detail">
+                                <ul>
+                                    <li>
+                                        <span>
+                                            <strong>Order Total</strong>
+                                        </span>
+                                        <span style={{ textAlign: "right" }}>
+                                            <strong>₹ {cart.reduce((acc, item) => acc += (item.price * item.quantity), 0).toFixed(2)}</strong>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </Row>
+                        <Row>
+                            <Col style={{ textAlign: "right" }}>
+                                <Button
+                                    variant="secondary"
+                                    size="md"
+                                    style={{ backgroundColor: Colors.primaryViolet, fontWeight: "bold" }}
+                                    onClick={() => { handleConfirmOrder(); }}
+                                > CONFIRM ORDER </Button>
+                            </Col>
+                        </Row>
+
                     </Col>
                 </Row>
-                <Row>
-                    <Col style={{ textAlign: "center" }}>
-                        <Button
-                            variant="secondary"
-                            size="md"
-                            style={{ backgroundColor: Colors.primaryViolet, fontWeight: "bold" }}
-                            onClick={() => { handleConfirmOrder(); }}
-                        > CONFIRM ORDER </Button>
-                    </Col>
-                </Row>
+
             </Container>
 
             <Footer />

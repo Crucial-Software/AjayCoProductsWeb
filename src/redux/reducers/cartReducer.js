@@ -15,13 +15,13 @@ const cartReducer = (state = initialState, action) => {
                     ...state,
                     cart: state.cart.map(item => item.variantID._id === action.payload.variantID._id ? {
                         ...item,
-                        quantity: item.quantity + 1,
-                    } : item)
+                        quantity: item.quantity + item.variantID.quantityIncreament,
+                    } : item),
+                    loading: false
                 }
             } else {
                 return { ...state, cart: [action.payload, ...state.cart], loading: action.loading }
-                }
-
+            }
         }
         case Constants.REMOVE_ITEM_FROM_CART: {
             return { ...state, cart: state.cart.filter((product) => product._id !== action.payload) };

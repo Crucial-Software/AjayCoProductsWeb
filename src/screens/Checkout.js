@@ -98,8 +98,8 @@ export default function Checkout() {
     const fetchCustomerAddresses = async (cId) => {
         setLoading(true);
         let toInput = {
-            customerID: "66ec04c6ad238bb7385160d0"
-            //customerID: cId
+            //customerID: "66ec04c6ad238bb7385160d0"
+            customerID: cId
         };
         await getCustomerAddresses(toInput)
             .then(async response => {
@@ -319,22 +319,27 @@ export default function Checkout() {
                 return false;
             }
         });
+        
         let cAdd = selCustomerAddress[0];
         setAddressType(cAdd.addType);
         setAddressName(cAdd.addName);
         setAddress(cAdd.addLine1);
         setPincode(cAdd.pinCode + '');
         setStateValue(cAdd.stateID._id);
+        getCitiesDropdownList(cAdd.stateID._id);
+        if(cities.length !== 0){
+            setCityValue(cAdd.cityID._id);
+        }
     }
 
     const clearAddressValues = () => {
         setSelectedCustomerAddressId(null);
-        setAddressType();
+        setAddressType("");
         setAddressName("");
         setAddress("");
         setPincode("");
-        setStateValue("- Select State -");
-        setStateValue("- Select City -");
+        setStateValue("");
+        setCityValue("");
     }
 
     return (
@@ -423,6 +428,7 @@ export default function Checkout() {
                                                     value="Residence Address"
                                                     name="AddressType"
                                                     onChange={e => setAddressType(e.target.value)}
+                                                    checked={addressType === "Residence Address"}
                                                 />
                                                 <Form.Check
                                                     inline
@@ -431,6 +437,7 @@ export default function Checkout() {
                                                     value="Company Address"
                                                     name="AddressType"
                                                     onChange={e => setAddressType(e.target.value)}
+                                                    checked={addressType === "Company Address"}
                                                 />
                                             </Col>
                                         </Form.Group>
