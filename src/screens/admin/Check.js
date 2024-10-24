@@ -35,7 +35,6 @@ const Check = () => {
                     toast.current.show({ life: 3000, severity: 'error', summary: error });
                 } else {
                     setProducts(data.data);
-                    console.log("Categories: " + JSON.stringify(data.data));
                 }
                 if (response.status === 422) {
                     toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });

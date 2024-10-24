@@ -42,6 +42,8 @@ const cartReducer = (state = initialState, action) => {
                 .filter((item) => item.quantity > 0);
             return { ...state, cart: minusCartItems };
         }
+        case Constants.CART_RESET:
+            return { ...state, cart: action.payload, loading: action.loading, };
         default:
             return state;
     }

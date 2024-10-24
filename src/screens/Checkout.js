@@ -41,6 +41,7 @@ export default function Checkout() {
 
     const [states, setStates] = useState([]);
     const [stateValue, setStateValue] = useState();
+    const [stateName, setStateName] = useState("");
     const [cities, setCities] = useState([]);
     const [cityValue, setCityValue] = useState();
 
@@ -77,22 +78,25 @@ export default function Checkout() {
     }
 
     const getCitiesDropdownList = async (sid) => {
-        let toInput = {
-            stateID: sid
-        };
-        await getAllCitiesByStateId(toInput)
-            .then(async response => {
-                const isJson = response.headers.get('content-type')?.includes('application/json');
-                const data = isJson && await response.json();
-                if (response.ok) {
-                    setCities(data.data);
-                } else {
-                    toast.current.show({ life: 3000, severity: 'error', summary: 'Error in loading cities' });
-                }
-            })
-            .catch(error => {
-                toast.current.show({ life: 3000, severity: 'error', summary: error });
-            });
+        if (sid !== "- Select State -") {
+            let toInput = {
+                stateID: sid
+            };
+            await getAllCitiesByStateId(toInput)
+                .then(async response => {
+                    const isJson = response.headers.get('content-type')?.includes('application/json');
+                    const data = isJson && await response.json();
+                    if (response.ok) {
+                        setCities(data.data);
+                    } else {
+                        toast.current.show({ life: 3000, severity: 'error', summary: 'Error in loading cities' });
+                    }
+                })
+                .catch(error => {
+                    toast.current.show({ life: 3000, severity: 'error', summary: error });
+                });
+        }
+
     }
 
     const fetchCustomerAddresses = async (cId) => {
@@ -135,7 +139,7 @@ export default function Checkout() {
         else if (mobile.length !== 10) {
             toast.current.show({ life: 3000, severity: 'error', summary: 'Enter a valid 10 digit mobile number' });
         }
-        else if (stateValue === "" || stateValue === "- Select State -") {
+        else if (stateValue === "" || stateValue === "- Select State -" || stateValue === null) {
             toast.current.show({ life: 3000, severity: 'error', summary: 'Please select state' });
         }
         else if (cityValue === "" || cityValue === "- Select City -" || cityValue === null) {
@@ -147,12 +151,22 @@ export default function Checkout() {
 
         else {
 
+            let netAmountFinal;
+            if(stateName === ""){
+                netAmountFinal = orderTotal.toFixed(2);
+            } else if(stateName === "Rajasthan"){
+                netAmountFinal = (orderTotal + (orderTotal * 18 / 100)).toFixed(2);
+            } else{
+                netAmountFinal = (orderTotal + (orderTotal * 9 / 100) + (orderTotal * 9 / 100)).toFixed(2);
+            }
+
             // console.log(
             //     " name: " + name +
             //     " mobile: " + mobile +
             //     " email: " + email +
             //     " companyName: " + companyName +
-            //     " addressName: " + addressName +
+            //     " addType: " + addressType + 
+            //     " addName: " + addressName +
             //     " address: " + address +
             //     " pincode: " + pincode +
             //     " additionalInformation: " + additionalInformation +
@@ -160,8 +174,10 @@ export default function Checkout() {
             //     " cityValue: " + cityValue +
             //     " terms and conditions: " + termsAndConditions +
             //     " curstomerId: " + customerId +
-            //     " addressType: " + addressType
+            //     " totalAmount: " + orderTotal + 
+            //     " netAmount: " + netAmountFinal
             // )
+            
 
             let toInput = {
                 name: name,
@@ -178,7 +194,7 @@ export default function Checkout() {
                 orderType: "Retail",
                 totalAmount: orderTotal,
                 totalDiscount: 0,
-                netAmount: orderTotal,
+                netAmount: netAmountFinal,
                 totalTax: 1.5,
                 totalIGST: 1.5,
                 paymentStatus: "pending",
@@ -229,7 +245,7 @@ export default function Checkout() {
                 //order_id: orderId,
                 //this is make function which will verify the payment after making the payment 
                 handler: async (response) => {
-                    console.log(response);
+                    //console.log(response);
                     // Most important step to capture and authorize the payment. This can be done of Backend server.
                     const succeeded = crypto.HmacSHA256(`${orderId}|${response.razorpay_payment_id}`, Razorpay_Id).toString() === response.razorpay_signature;
 
@@ -319,15 +335,23 @@ export default function Checkout() {
                 return false;
             }
         });
-        
+
         let cAdd = selCustomerAddress[0];
         setAddressType(cAdd.addType);
         setAddressName(cAdd.addName);
         setAddress(cAdd.addLine1);
         setPincode(cAdd.pinCode + '');
         setStateValue(cAdd.stateID._id);
+        if (cAdd.stateID._id !== "- Select State -") {
+            var value = states.filter(function (item) {
+                return item._id === cAdd.stateID._id
+            })
+            setStateName(value[0].stateName);
+        } else {
+            setStateName("");
+        }
         getCitiesDropdownList(cAdd.stateID._id);
-        if(cities.length !== 0){
+        if (cities.length !== 0) {
             setCityValue(cAdd.cityID._id);
         }
     }
@@ -339,6 +363,7 @@ export default function Checkout() {
         setAddress("");
         setPincode("");
         setStateValue("");
+        setStateName("");
         setCityValue("");
     }
 
@@ -496,10 +521,23 @@ export default function Checkout() {
                                                     <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>State <span style={{ color: "red" }}>*</span></Form.Label>
                                                     <Form.Control
                                                         as="select"
-                                                        className="rounded-3"
+                                                        className="form-select form-select-override"
                                                         style={{ fontSize: 12 }}
                                                         value={stateValue}
-                                                        onChange={e => { setStateValue(e.target.value); getCitiesDropdownList(e.target.value); setCityValue("- Select City -"); }}
+                                                        onChange={e => {
+                                                            setStateValue(e.target.value);
+                                                            getCitiesDropdownList(e.target.value);
+                                                            setCityValue("- Select City -");
+
+                                                            if (e.target.value !== "- Select State -") {
+                                                                var value = states.filter(function (item) {
+                                                                    return item._id === e.target.value
+                                                                })
+                                                                setStateName(value[0].stateName);
+                                                            } else {
+                                                                setStateName("");
+                                                            }
+                                                        }}
                                                     >
                                                         <option value="- Select State -" id="- Select State -">- Select State -</option>
                                                         {states.map((data, key) => <option key={data._id} value={data._id}>{data.stateName}</option>)}
@@ -511,7 +549,7 @@ export default function Checkout() {
                                                     <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>City <span style={{ color: "red" }}>*</span></Form.Label>
                                                     <Form.Control
                                                         as="select"
-                                                        className="rounded-3"
+                                                        className="form-select form-select-override"
                                                         style={{ fontSize: 12 }}
                                                         value={cityValue}
                                                         onChange={e => { setCityValue(e.target.value); }}
@@ -632,37 +670,71 @@ export default function Checkout() {
                                             </li>
                                             <li>
                                                 <span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>
-                                                    SGST(9%)
+                                                    Discount
                                                 </span>
                                                 <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>
-                                                    ₹ {(orderTotal * 9 / 100).toFixed(2)}
+                                                    ₹ 0.00
                                                 </span>
                                             </li>
-                                            <li>
-                                                <span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>
-                                                    CGST(9%)
-                                                </span>
-                                                <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>
-                                                    ₹ {(orderTotal * 9 / 100).toFixed(2)}
-                                                </span>
-                                            </li>
-                                            <li>
-                                                <span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>
-                                                    IGST(18%)
-                                                </span>
-                                                <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>
-                                                    ₹ {(orderTotal * 18 / 100).toFixed(2)}
-                                                </span>
-                                            </li>
+
+                                            {stateName === "" ?
+                                                null
+                                                :
+                                                <>
+                                                    {stateName === "Rajasthan" ?
+                                                        <li>
+                                                            <span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>
+                                                                IGST(18%)
+                                                            </span>
+                                                            <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>
+                                                                ₹ {(orderTotal * 18 / 100).toFixed(2)}
+                                                            </span>
+                                                        </li>
+                                                        :
+                                                        <>
+                                                            <li>
+                                                                <span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>
+                                                                    SGST(9%)
+                                                                </span>
+                                                                <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>
+                                                                    ₹ {(orderTotal * 9 / 100).toFixed(2)}
+                                                                </span>
+                                                            </li>
+                                                            <li>
+                                                                <span style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>
+                                                                    CGST(9%)
+                                                                </span>
+                                                                <span style={{ textAlign: "right", fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>
+                                                                    ₹ {(orderTotal * 9 / 100).toFixed(2)}
+                                                                </span>
+                                                            </li>
+                                                        </>
+                                                    }
+                                                </>
+                                            }
+
+
                                             {/* <li><span><strong>Amount to be Paid</strong></span> <span style={{ textAlign: "right" }}><strong>₹ {orderTotal}</strong></span></li> */}
+
                                             <li>
                                                 <span>
                                                     <strong>Amount to be Paid</strong>
                                                 </span>
                                                 <span style={{ textAlign: "right" }}>
-                                                    <strong>₹ {orderTotal.toFixed(2)}</strong>
+                                                    {stateName === "" ?
+                                                        <strong>₹ {orderTotal.toFixed(2)}</strong>
+                                                        :
+                                                        <>
+                                                            {stateName === "Rajasthan" ?
+                                                                <strong>₹ {(orderTotal + (orderTotal * 18 / 100)).toFixed(2)}</strong>
+                                                                :
+                                                                <strong>₹ {(orderTotal + (orderTotal * 9 / 100) + (orderTotal * 9 / 100)).toFixed(2)}</strong>
+                                                            }
+                                                        </>
+                                                    }
                                                 </span>
                                             </li>
+
                                         </ul>
                                     </div>
 

@@ -3,6 +3,8 @@ import { Col, Image, Row, NavDropdown, Nav } from "react-bootstrap";
 import PersonImage from "../assets/images/person.png";
 import { useNavigate } from "react-router-dom";
 import {Colors, FontSize} from '../common/ConstantStyles';
+import { useDispatch } from 'react-redux';
+import { signout } from "../redux/actions/cartAction";
 
 const Header = () => {
 
@@ -11,10 +13,12 @@ const Header = () => {
   const userMobile = localStorage.getItem("userMobile");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const checkLogout = () => {
     localStorage.clear();
     navigate('/login');
+    dispatch(signout());
   }
 
   return (

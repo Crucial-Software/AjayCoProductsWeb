@@ -86,3 +86,30 @@ p {
   .p-galleria .p-galleria-thumbnail-container .p-galleria-thumbnail-prev, .p-galleria .p-galleria-thumbnail-container .p-galleria-thumbnail-next{
     color: #000;
   }
+
+  .form-select-override {
+    -webkit-appearance: menulist!important;
+    -moz-appearance: menulist!important;
+    -ms-appearance: menulist!important;
+    -o-appearance: menulist!important;
+    appearance: menulist!important;
+  }
+
+  .accordion-button {
+    background-color: #431D72 !important;
+    color: #fff !important;
+  }
+  
+  .accordion-button:focus {
+    color: #fff !important;
+  }
+
+  .accordion-button:not(.collapsed) {
+    color: #fff !important;
+  }
+
+ 
+  .accordion-button::after {
+    -webkit-filter: grayscale(1) invert(1);
+filter: grayscale(1) invert(1);
+  }

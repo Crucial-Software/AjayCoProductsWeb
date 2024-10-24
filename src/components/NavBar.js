@@ -5,7 +5,7 @@ import './CommonStyle.css';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllCategories } from './api';
-import { fetchCartItems } from '../redux/actions/cartAction';
+import { fetchCartItems, signout } from '../redux/actions/cartAction';
 
 export default function NavBar() {
 
@@ -51,6 +51,7 @@ export default function NavBar() {
     const checkLogout = () => {
         localStorage.clear();
         navigate('/login');
+        dispatch(signout());
     }
 
     const handleSearchFormSubmit = () => {
@@ -101,6 +102,8 @@ export default function NavBar() {
                                             id="collapsible-nav-dropdown"
                                             style={{ marginLeft: 10, marginRight: 10 }}
                                         >
+                                            <NavDropdown.Item as={Link} to="/myorders">My Orders</NavDropdown.Item>
+                                            <NavDropdown.Item as={Link} to="/editprofile">Edit Profile</NavDropdown.Item>
                                             <NavDropdown.Item as={Link} to="/changepassword">Change Password</NavDropdown.Item>
                                             <NavDropdown.Item onClick={() => { checkLogout() }}>Logout</NavDropdown.Item>
 

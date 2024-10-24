@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import TopHeader from '../components/TopHeader'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
-import { Form, Button, Row, Col, Alert } from 'react-bootstrap'
+import { Form, Button, Row, Col } from 'react-bootstrap'
 import { Colors } from '../common/ConstantStyles'
 import { useLocation, useNavigate } from 'react-router-dom'
 import './Screens.css';
@@ -14,10 +14,12 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { API_BASE } from '../components/urlLink';
 import { Galleria } from 'primereact/galleria';
 import { Image } from 'primereact/image';
+import { Toast } from 'primereact/toast';
 
 export default function ProductDetails() {
 
     const loginid = localStorage.getItem("userLoginId");
+    const toast = useRef(null);
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -29,10 +31,6 @@ export default function ProductDetails() {
     const [productDetails, setProductDetails] = useState([]);
     const [productVariantsList, setProductVariantsList] = useState([]);
     const [itemImages, setItemImages] = useState([]);
-
-    const [showAlert, setShowAlert] = useState(false);
-    const [alertVariant, setAlertVariant] = useState("");
-    const [alertMessage, setAlertMessage] = useState("");
 
     const [selectedVariant, setSelectedVariant] = useState();
     const [sku, setSku] = useState("");
@@ -102,8 +100,7 @@ export default function ProductDetails() {
             })
             .catch(error => {
                 setLoading(false);
-                setAlertMessage(<span style={{ color: Colors.red }}>{error}</span>);
-                setTimeout(() => setAlertMessage(""), 3000);
+                toast.current.show({ life: 3000, severity: 'error', summary: error });
             });
     }
 
@@ -130,10 +127,7 @@ export default function ProductDetails() {
     const addToCart = () => {
 
         if (minimumQuantity === 0) {
-            setShowAlert(true);
-            setAlertVariant("danger");
-            setAlertMessage("Please select quantity");
-            setTimeout(() => { setShowAlert(false) }, 2000);
+            toast.current.show({ life: 3000, severity: 'error', summary: "Please select quantity" });
         } else if (loginid === null) {
             navigate('/login');
         } else {
@@ -144,10 +138,7 @@ export default function ProductDetails() {
                 userID: loginid,
             }
             dispatch(addItemToCart(item));
-            setShowAlert(true);
-            setAlertVariant("success");
-            setAlertMessage("Added to cart");
-            setTimeout(() => { setShowAlert(false) }, 2000);
+            toast.current.show({ life: 3000, severity: 'success', summary: "Added to cart" });
         }
     }
 
@@ -172,7 +163,6 @@ export default function ProductDetails() {
     }
 
     const itemTemplate1 = (item) => {
-        console.log("Item: " + item);
         return <img src={`${API_BASE}/images/products/${item.productImageLink}`} alt={item.productImageLink} style={{ width: '100%', display: 'block' }} />;
     }
 
@@ -191,6 +181,8 @@ export default function ProductDetails() {
 
                 <div className="container">
 
+                <Toast ref={toast} />
+
                     {loading ?
 
                         <Row style={{ justifyContent: "center", alignContent: "center" }}>
@@ -204,7 +196,7 @@ export default function ProductDetails() {
                                         <>
                                             {itemImages.length === 1 ?
                                                 itemImages.map((item, key) =>
-                                                    <Image src={`${API_BASE}/images/products/${item.productImageLink}`} alt={item.productImageLink} height="450" preview />
+                                                    <Image src={`${API_BASE}/images/products/${item.productImageLink}`} alt={item.productImageLink} height="450" preview key={item._id} />
                                                 )
                                                 :
                                                 <>
@@ -307,7 +299,14 @@ export default function ProductDetails() {
                                             </Row>
                                             <Row>
                                                 <Col md={6}>
-                                                    <Form.Control as="select" className="rounded-0 shadow" style={{ fontSize: 12, borderRadius: 4 }} value={selectedVariant} onChange={e => { handleVariantSelect(e.target.value); }} >
+                                                    <Form.Control 
+                                                    as="select" 
+                                                    className="form-select form-select-override"
+                                                    // className="rounded-0 shadow" 
+                                                    style={{ fontSize: 12, borderRadius: 4 }} 
+                                                    value={selectedVariant} 
+                                                    onChange={e => { handleVariantSelect(e.target.value); }} 
+                                                    >
                                                         {/* <option value={null}>- Select Size -</option> */}
                                                         {productDetails.productVariants ?
                                                             productDetails.productVariants.map((data, key) =>
@@ -379,11 +378,6 @@ export default function ProductDetails() {
                                                 size="md"
                                             > Add to Cart
                                             </Button>
-                                        </Col>
-                                    </Row>
-                                    <Row style={{ marginTop: 20 }}>
-                                        <Col>
-                                            <Alert key='danger' show={showAlert} variant={alertVariant} style={{ fontSize: 14, color: Colors.black }}>{alertMessage}</Alert>
                                         </Col>
                                     </Row>
                                 </Col>

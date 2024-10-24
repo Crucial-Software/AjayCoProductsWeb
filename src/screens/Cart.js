@@ -57,6 +57,7 @@ export default function Cart() {
             userID: loginid,
         }
         dispatch(incrementItemQuantity(item));
+        toast.current.show({ life: 3000, severity: 'success', summary: "Quantity Updated" });
     }
 
     const decrementQuantity = (pItem) => {
@@ -70,6 +71,7 @@ export default function Cart() {
             setSelectedItemToRemove(pItem._id);
         } else {
             dispatch(decrementItemQuantity(item));
+            toast.current.show({ life: 3000, severity: 'success', summary: "Quantity Updated" });
         }
 
     }
@@ -103,7 +105,7 @@ export default function Cart() {
                             const isJson = response.headers.get('content-type')?.includes('application/json');
                             const data = isJson && await response.json();
 
-                            console.log("data: " + data.status);
+                            //console.log("data: " + data.status);
 
                             if (!response.ok) {
                                 toast.current.show({ life: 3000, severity: 'error', summary: data.error.undefined });
@@ -116,7 +118,7 @@ export default function Cart() {
                             if (data.status === "Success") {
                                 //console.log("Razorpay Process: " + JSON.stringify(data.data));
                                 //console.log("Amount: " + data.data.netAmount)
-                                console.log("OrderId: " + data.data._id)
+                                //console.log("OrderId: " + data.data._id)
                                 navigate("/placeorder", {
                                     state: {
                                         paymentStatus: "Success",
@@ -179,6 +181,7 @@ export default function Cart() {
                                     _id: selectedItemToRemove,
                                 };
                                 dispatch(removeItemFromCart(toInput));
+                                toast.current.show({ life: 3000, severity: 'success', summary: "Item removed" });
                             }}
                         > Yes </Button>
                     </Modal.Footer>
@@ -236,13 +239,13 @@ export default function Cart() {
                     </Row>
                 }
 
-                <Row style={{ backgroundColor: Colors.grey, padding: 5, borderRadius: 50, fontSize: 14, fontWeight: "bold", textAlign: "center" }} className="align-items-center">
-                    <Col sm={4}>Product</Col>
-                    <Col sm={2}>Size</Col>
-                    <Col sm={1}>Price</Col>
-                    <Col sm={2}>Quantity</Col>
-                    <Col sm={2}>Sub-Total</Col>
-                    <Col sm={1}>Remove</Col>
+                <Row style={{ backgroundColor: Colors.grey, padding: 5, borderRadius: 50, fontSize: 14, fontWeight: "bold", textAlign: "center" }} className="checkGreyRow">
+                    <Col sm={4} style={{paddingRight: 30}}>Product</Col>
+                    <Col sm={2} style={{paddingRight: 30}}>Size</Col>
+                    <Col sm={1} style={{paddingRight: 30}}>Price</Col>
+                    <Col sm={2} style={{paddingRight: 30}}>Quantity</Col>
+                    <Col sm={2} style={{paddingRight: 30}}>Sub-Total</Col>
+                    <Col sm={1} style={{paddingRight: 30}}>Remove</Col>
                 </Row>
                 <Row>
                     {loading ?
@@ -262,11 +265,16 @@ export default function Cart() {
                                             </div>
                                             <div className="display-tc">
                                                 <p>{item.variantID.productID ? item.variantID.productID.productName : null}</p>
-                                                <span style={{ fontSize: 12 }}>{item.SKU}</span>
+                                                <span style={{ fontSize: 12 }}>SKU: {item.variantID? item.variantID.SKU : null}</span>
                                             </div>
                                         </Col>
                                         <Col sm={2} style={{ wordBreak: "break-all" }}>
-                                            {item.variantID.variantOptions ? item.variantID.variantOptions[0].featureOptionID.featureOptionName : null}
+                                            {item.variantID.variantOptions && item.variantID.variantOptions[0].featureOptionID ?
+                                                item.variantID.variantOptions[0].featureOptionID.featureOptionName === "Simple Product"?
+                                                ""
+                                                : item.variantID.variantOptions[0].featureOptionID.featureOptionName 
+                                                : null
+                                            }
                                         </Col>
                                         <Col sm={1}>₹ {(item.price).toFixed(2)}</Col>
                                         <Col sm={2}>

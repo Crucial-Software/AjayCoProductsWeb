@@ -65,7 +65,7 @@ export default function ForgotPassword() {
             setOtpScreen(false);
             setPasswordResetScreen(false);
             const encyPassword = Base64.encode(password);
-            console.log("mobile: " + mobile + " password: " + password + " encyPassword: " + encyPassword)
+            //console.log("mobile: " + mobile + " password: " + password + " encyPassword: " + encyPassword)
             navigate("/login");
         }
 

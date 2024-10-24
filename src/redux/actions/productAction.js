@@ -21,7 +21,7 @@ export const fetchProducts = () => dispatch => {
                     payload: "",
                     loading: false
                 });
-                console.log("Products Error: " + error)
+                //console.log("Products Error: " + error)
             });;
         return response;
 

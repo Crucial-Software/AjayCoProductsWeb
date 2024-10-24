@@ -34,6 +34,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ManageProducts from './screens/admin/ManageProducts';
 import CreateNewProduct from './screens/admin/CreateNewProduct';
 import Orders from './screens/admin/Orders';
+import EditProfile from './screens/EditProfile';
+import MyOrders from './screens/MyOrders';
 
 function App() {
 
@@ -57,6 +59,8 @@ function App() {
         <Route path='/forgotpassword' element={<ProtectedRoute Component={ForgotPassword} />} />
 
         <Route path="/changepassword" element={<PrivateRoute Component={ChangePassword} userRole={"customer, dealer"} />} />
+        <Route path="/editprofile" element={<PrivateRoute Component={EditProfile} userRole={"customer, dealer"} />} />
+        <Route path="/myorders" element={<PrivateRoute Component={MyOrders} userRole={"customer, dealer"} />} />
         <Route path="/cart" element={<PrivateRoute Component={Cart}  userRole={"customer, dealer"} />} />
         <Route path="/checkout" element={<PrivateRoute Component={Checkout} userRole={"customer, dealer"} />} />
         <Route path="/placeorder" element={<PrivateRoute Component={PlaceOrder} userRole={"customer, dealer"} />} />

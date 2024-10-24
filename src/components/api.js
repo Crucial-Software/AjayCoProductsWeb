@@ -827,6 +827,32 @@ export const getCustomerAddresses = async (toInput) => {
     }
 }
 
+export const createCustomerAddress = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/createcustomeradd`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - createCustomerAddress error: " + error);
+    }
+}
+
+export const updateCustomerAddress = async (toInput) => {
+    try {
+        const response = await fetch(`${API_BASE}/updatecustomeradd`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(toInput)
+        });
+        return response;
+    } catch (error) {
+        console.error("api - updateCustomerAddress error: " + error);
+    }
+}
+
 
 
 

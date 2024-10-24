@@ -74,7 +74,7 @@ export default function Register() {
                         return Promise.reject(error);
                     }
 
-                    console.log("registerUser Response: " + JSON.stringify(data));
+                    //console.log("registerUser Response: " + JSON.stringify(data));
 
                     // const userInfo = data.data[0];
 

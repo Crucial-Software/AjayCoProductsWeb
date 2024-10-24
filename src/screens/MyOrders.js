@@ -9,7 +9,7 @@ import { Base64 } from 'js-base64';
 import { updatePassword } from '../components/api';
 import { Toast } from 'primereact/toast';
 
-export default function ChangePassword() {
+export default function MyOrders() {
 
     const mobile = localStorage.getItem("userMobile");
     const toast = useRef(null);
@@ -21,7 +21,7 @@ export default function ChangePassword() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const checkChangePasswordData = async (event) => {
+    const checkLoginData = async (event) => {
         event.preventDefault();
 
         if (currentPassword.length < 6) {
@@ -51,11 +51,10 @@ export default function ChangePassword() {
                     const isJson = response.headers.get('content-type')?.includes('application/json');
                     const data = isJson && await response.json();
                     if (response.ok) {
-                        toast.current.show({ life: 3000, severity: 'success', summary: data.message });
+                        toast.current.show({ life: 3000, severity: 'error', summary: data.message });
                         clearData();
                     } else {
                         const error = (data && data.message) || response.status;
-                        toast.current.show({ life: 3000, severity: 'error', summary: error });
                         return Promise.reject(error);
                     }
                 })
@@ -96,7 +95,7 @@ export default function ChangePassword() {
                         <div className="col-md-6 center-block ">
                             <div className="contact-wrap">
                             <Toast ref={toast} position="top-center" />
-                                <Form onSubmit={checkChangePasswordData}>
+                                <Form onSubmit={checkLoginData}>
 
                                     <Form.Group className="mb-3" controlId="formGroupPassword">
                                         <Form.Label style={{ fontWeight: 'bold', color: Colors.darkGrey, fontSize: 14 }}>Current Password <span style={{ color: "red" }}>*</span></Form.Label>

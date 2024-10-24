@@ -18,8 +18,6 @@ export default function Shop() {
             behavior: "smooth"
         });
 
-        //console.log("catID: " + categoryId);
-
     }, [categoryId])
 
     return (
